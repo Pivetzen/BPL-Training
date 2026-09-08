@@ -15,7 +15,7 @@
 
     <!-- Header / Navbar -->
     <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold text-amber-500 tracking-wider">BPL <span class="text-white">Training</span></h1>
             
             <div id="auth-status" class="flex items-center gap-4">
@@ -31,56 +31,82 @@
     </header>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Form Section -->
-        <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl h-fit">
-            <h2 class="text-xl font-bold mb-4 text-amber-400 border-b border-slate-700 pb-2">Configurar Treino</h2>
+        <!-- Coluna Esquerda: Configurar Treino & Treinos Salvos -->
+        <div class="space-y-6">
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Objetivo</label>
-                    <select id="objetivo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <option value="hipertrofia">Hipertrofia</option>
-                        <option value="forca">Força Bruta</option>
-                        <option value="emagrecimento">Resistência / Emagrecimento</option>
-                    </select>
+            <!-- 3. Card Configurar Treino (com Nome e Local) -->
+            <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+                <h2 class="text-xl font-bold mb-4 text-amber-400 border-b border-slate-700 pb-2">Configurar Treino</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Nome do Aluno / Atleta *</label>
+                        <input type="text" id="aluno-nome" placeholder="Ex: Mateus Silva" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Local do Treino</label>
+                        <input type="text" id="treino-local" placeholder="Ex: Academia Central / Em Casa" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Objetivo</label>
+                        <select id="objetivo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="hipertrofia">Hipertrofia</option>
+                            <option value="forca">Força Bruta</option>
+                            <option value="emagrecimento">Resistência / Emagrecimento</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Nível de Experiência</label>
+                        <select id="nivel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="iniciante">Iniciante</option>
+                            <option value="intermediario" selected>Intermediário</option>
+                            <option value="avancado">Avançado</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Divisão Semanal</label>
+                        <select id="divisao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="AB">AB (2 Divisões)</option>
+                            <option value="ABC" selected>ABC (3 Divisões)</option>
+                            <option value="ABCD">ABCD (4 Divisões)</option>
+                            <option value="ABCDE">ABCDE (5 Divisões)</option>
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="gerarTreinoPersonalizado()" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-900 font-bold py-3 rounded-lg transition-all mt-4 shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Gerar Treino Personalizado
+                    </button>
                 </div>
+            </section>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Nível de Experiência</label>
-                    <select id="nivel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <option value="iniciante">Iniciante</option>
-                        <option value="intermediario">Intermediário</option>
-                        <option value="avancado">Avançado</option>
-                    </select>
+            <!-- 4. Card de Lista dos Treinos Salvos -->
+            <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h2 class="text-xl font-bold text-amber-400">Treinos Salvos</h2>
+                    <button type="button" onclick="carregarTreinosSalvos()" class="text-xs text-amber-400 hover:underline">Atualizar</button>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Divisão Semanal</label>
-                    <select id="divisao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <option value="AB">AB (2 Divisões)</option>
-                        <option value="ABC" selected>ABC (3 Divisões)</option>
-                        <option value="ABCD">ABCD (4 Divisões)</option>
-                        <option value="ABCDE">ABCDE (5 Divisões)</option>
-                    </select>
+                
+                <div id="lista-treinos-salvos" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                    <p class="text-sm text-slate-500 text-center py-4">Faça login para ver e gerenciar seus treinos salvos.</p>
                 </div>
+            </section>
 
-                <!-- Botão de Ação Direta via onclick -->
-                <button type="button" id="btn-gerar" onclick="gerarTreinoPersonalizado()" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-900 font-bold py-3 rounded-lg transition-all mt-4 shadow-lg flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Gerar Treino Personalizado
-                </button>
-            </div>
-        </section>
+        </div>
 
-        <!-- Display / Output Section -->
+        <!-- Coluna Direita: Display / Output Section -->
         <section class="lg:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                     <h2 class="text-xl font-bold text-amber-400">Ficha de Treino</h2>
                     <div class="flex gap-2">
-                        <button id="btn-salvar" type="button" onclick="salvarTreino()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer">
+                        <button id="btn-salvar" type="button" onclick="salvarTreinoBD()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer">
                             Salvar Treino
                         </button>
                         <button id="btn-pdf" type="button" onclick="exportarPDF()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer">
@@ -91,7 +117,7 @@
 
                 <div id="conteudo-treino" class="text-slate-300">
                     <div class="text-center py-12 text-slate-500">
-                        <p>Selecione as opções ao lado e clique em <strong>"Gerar Treino Personalizado"</strong>.</p>
+                        <p>Faça login, preencha as informações ao lado e clique em <strong>"Gerar Treino Personalizado"</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -130,24 +156,64 @@
 
     <!-- Script Principal -->
     <script>
-        // Database de Exercícios
+        // CONFIGURAÇÃO DO SUPABASE
+        const SUPABASE_URL = 'HTTPS://SEU-PROJETO.SUPABASE.CO';
+        const SUPABASE_KEY = 'SUA_ANON_KEY';
+        
+        let supabase = null;
+        if (typeof createClient !== 'undefined' && !SUPABASE_URL.includes('SEU-PROJETO')) {
+            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        // 5. Banco de dados de Exercícios com Nome, Séries, Repetições, Carga Padrão e Observação
         const exerciciosDB = {
-            peito: ["Supino Reto com Barra", "Supino Inclinado com Halteres", "Crossover na Polia", "Crucifixo Reto"],
-            costas: ["Puxada Alta Frontal", "Remada Curvada com Barra", "Remada Baixa no Cabo", "Pulldown"],
-            pernas: ["Agachamento Livre", "Leg Press 45°", "Cadeira Extensora", "Mesa Flexora", "Elevação Pélvica"],
-            ombros: ["Desenvolvimento com Halteres", "Elevação Lateral", "Elevação Frontal", "Crucifixo Invertido"],
-            bracos: ["Rosca Direta", "Rosca Scott", "Tríceps Corda", "Tríceps Testa", "Paralelas"]
+            peito: [
+                { nome: "Supino Reto com Barra", series: 4, reps: "8-12", carga: "20kg Lado", obs: "Mantenha as escápulas retraídas, desça a barra até tocar o peito sem rebater." },
+                { nome: "Supino Inclinado com Halteres", series: 3, reps: "10-12", carga: "18kg Halter", obs: "Ajuste o banco em 30º a 45º. Controle a descida sentindo o alongamento do peitoral superior." },
+                { nome: "Crossover na Polia Alta", series: 3, reps: "12-15", carga: "15kg Lado", obs: "Mantenha o cotovelo levemente flexionado e cruze levemente as mãos no final do movimento." }
+            ],
+            costas: [
+                { nome: "Puxada Alta Frontal", series: 4, reps: "10-12", carga: "45kg", obs: "Puxe a barra em direção ao peito, contraindo a dorsal sem jogar o tronco excessivamente para trás." },
+                { nome: "Remada Curvada com Barra", series: 4, reps: "8-10", carga: "15kg Lado", obs: "Mantenha a coluna neutra e joelhos semi-flexionados. Puxe a barra no umbigo." },
+                { nome: "Remada Baixa na Polia", series: 3, reps: "12", carga: "40kg", obs: "Mantenha o peito aberto e esmague as costas no final da puxada." }
+            ],
+            pernas: [
+                { nome: "Agachamento Livre", series: 4, reps: "8-10", carga: "25kg Lado", obs: "Pés na largura dos ombros. Agache preservando a curvatura natural da coluna." },
+                { nome: "Leg Press 45°", series: 4, reps: "10-12", carga: "80kg Total", obs: "Não trave os joelhos no topo e evite tirar o quadril do banco no ponto mais baixo." },
+                { nome: "Cadeira Extensora", series: 3, reps: "12-15", carga: "35kg", obs: "Segure 1 segundo no topo com contração máxima do quadríceps." },
+                { nome: "Mesa Flexora", series: 3, reps: "10-12", carga: "30kg", obs: "Foque a força na parte posterior da coxa sem elevar o quadril durante a subida." }
+            ],
+            ombros: [
+                { nome: "Desenvolvimento com Halteres", series: 4, reps: "10", carga: "14kg Halter", obs: "Suba os halteres sem bater no topo, controlando a fase cêntrica." },
+                { nome: "Elevação Lateral", series: 4, reps: "12-15", carga: "8kg Halter", obs: "Eleve os braços até a linha dos ombros com cotovelos levemente dobrados." }
+            ],
+            bracos: [
+                { nome: "Rosca Direta com Barra W", series: 3, reps: "10-12", carga: "10kg Lado", obs: "Mantenha os cotovelos colados ao tronco e evite balançar o corpo." },
+                { nome: "Tríceps Corda na Polia", series: 3, reps: "12-15", carga: "20kg", obs: "Abra a corda na parte inferior do movimento focando na cabeça lateral do tríceps." }
+            ]
         };
 
-        // Função de Geração de Treino
+        let usuarioAtual = null;
+        let treinoAtualmenteGerado = null;
+
+        // 1. Verificar se o usuário está logado antes de gerar
         function gerarTreinoPersonalizado() {
+            if (!usuarioAtual) {
+                alert('Atenção: Você precisa estar logado e aprovado para poder gerar treinos!');
+                abrirModalAuth();
+                return;
+            }
+
+            const nomeAluno = document.getElementById('aluno-nome').value.trim();
+            const localTreino = document.getElementById('treino-local').value.trim();
             const objetivo = document.getElementById('objetivo').value;
             const nivel = document.getElementById('nivel').value;
             const divisao = document.getElementById('divisao').value;
 
-            const seriesReps = objetivo === 'forca' ? '4 séries x 5 repetições' : 
-                               objetivo === 'hipertrofia' ? '3 séries x 10 a 12 repetições' : 
-                               '3 séries x 15 repetições';
+            if (!nomeAluno) {
+                alert('Por favor, informe o Nome do Aluno.');
+                return;
+            }
 
             const estrutura = {
                 'AB': [
@@ -161,7 +227,7 @@
                 ],
                 'ABCD': [
                     { nome: 'Treino A - Peito e Ombro', grupos: ['peito', 'ombros'] },
-                    { nome: 'Treino B - Costas e Trapézio', grupos: ['costas'] },
+                    { nome: 'Treino B - Costas', grupos: ['costas'] },
                     { nome: 'Treino C - Pernas Completo', grupos: ['pernas'] },
                     { nome: 'Treino D - Braços', grupos: ['bracos'] }
                 ],
@@ -175,39 +241,66 @@
             };
 
             const divisaoSelecionada = estrutura[divisao] || estrutura['ABC'];
-            const qtdExercicios = nivel === 'iniciante' ? 2 : 3;
 
+            const blocosTreino = divisaoSelecionada.map(bloco => {
+                let exerciciosList = [];
+                bloco.grupos.forEach(grupo => {
+                    const lista = exerciciosDB[grupo] || [];
+                    exerciciosList = exerciciosList.concat(lista.slice(0, nivel === 'iniciante' ? 2 : 3));
+                });
+                return { titulo: bloco.nome, exercicios: exerciciosList };
+            });
+
+            treinoAtualmenteGerado = {
+                nomeAluno,
+                localTreino: localTreino || 'Não informado',
+                objetivo,
+                nivel,
+                divisao,
+                blocos: blocosTreino
+            };
+
+            renderizarTreino(treinoAtualmenteGerado);
+        }
+
+        // 5. Exibir o Treino com Exercício, Séries, Repetições, Carga e Observação
+        function renderizarTreino(treino) {
             let html = `
                 <div id="ficha-impressao" class="space-y-6">
-                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-wrap gap-4 justify-between text-sm">
-                        <p><strong class="text-amber-400">Objetivo:</strong> ${objetivo.toUpperCase()}</p>
-                        <p><strong class="text-amber-400">Nível:</strong> ${nivel.toUpperCase()}</p>
-                        <p><strong class="text-amber-400">Divisão:</strong> ${divisao}</p>
+                    <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <p><strong class="text-amber-400">Aluno:</strong> ${treino.nomeAluno}</p>
+                        <p><strong class="text-amber-400">Local:</strong> ${treino.localTreino}</p>
+                        <p><strong class="text-amber-400">Objetivo:</strong> ${treino.objetivo.toUpperCase()}</p>
+                        <p><strong class="text-amber-400">Nível:</strong> ${treino.nivel.toUpperCase()} (${treino.divisao})</p>
                     </div>
             `;
 
-            divisaoSelecionada.forEach(bloco => {
+            treino.blocos.forEach(bloco => {
                 html += `
                     <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
-                        <h3 class="text-lg font-bold text-amber-400 mb-3 border-b border-slate-800 pb-1">${bloco.nome}</h3>
-                        <ul class="space-y-2">
+                        <h3 class="text-lg font-bold text-amber-400 mb-3 border-b border-slate-800 pb-1">${bloco.titulo}</h3>
+                        <div class="space-y-3">
                 `;
                 
-                bloco.grupos.forEach(grupo => {
-                    const lista = exerciciosDB[grupo] || [];
-                    const selecionados = lista.slice(0, qtdExercicios);
-                    
-                    selecionados.forEach(ex => {
-                        html += `
-                            <li class="flex justify-between items-center text-sm bg-slate-800/60 p-2 rounded border border-slate-700/50">
-                                <span class="font-medium text-slate-200">${ex}</span>
-                                <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-1 rounded font-mono">${seriesReps}</span>
-                            </li>
-                        `;
-                    });
+                bloco.exercicios.forEach(ex => {
+                    html += `
+                        <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700/60">
+                            <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
+                                <span class="font-bold text-amber-300">${ex.nome}</span>
+                                <div class="flex gap-2 text-xs font-mono">
+                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Séries: ${ex.series}</span>
+                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Reps: ${ex.reps}</span>
+                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Carga: ${ex.carga}</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 italic mt-1 bg-slate-900/50 p-2 rounded">
+                                💡 <strong>Obs:</strong> ${ex.obs}
+                            </p>
+                        </div>
+                    `;
                 });
 
-                html += `</ul></div>`;
+                html += `</div></div>`;
             });
 
             html += `</div>`;
@@ -217,14 +310,14 @@
             document.getElementById('btn-pdf').classList.remove('hidden');
         }
 
-        // Exportação para PDF
+        // Exportação de PDF
         function exportarPDF() {
             const elemento = document.getElementById('ficha-impressao');
             if (!elemento) return;
 
             const opt = {
                 margin:       10,
-                filename:     'ficha-de-treino-bpl.pdf',
+                filename:     `Treino_${treinoAtualmenteGerado?.nomeAluno || 'BPL'}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -233,7 +326,99 @@
             html2pdf().set(opt).from(elemento).save();
         }
 
-        // Controle do Modal & Autenticação Local/Supabase
+        // 4. Salvar Treino na lista do banco de dados
+        async function salvarTreinoBD() {
+            if (!usuarioAtual) {
+                alert('Faça login para salvar o treino!');
+                return;
+            }
+
+            if (!treinoAtualmenteGerado) return;
+
+            if (supabase) {
+                const { error } = await supabase.from('user_workouts').insert([{
+                    user_id: usuarioAtual.id,
+                    student_name: treinoAtualmenteGerado.nomeAluno,
+                    location: treinoAtualmenteGerado.localTreino,
+                    goal: treinoAtualmenteGerado.objetivo,
+                    level: treinoAtualmenteGerado.nivel,
+                    split: treinoAtualmenteGerado.divisao,
+                    workout_data: treinoAtualmenteGerado
+                }]);
+
+                if (error) {
+                    alert('Erro ao salvar no banco de dados: ' + error.message);
+                } else {
+                    alert('Treino salvo com sucesso!');
+                    carregarTreinosSalvos();
+                }
+            } else {
+                // Fallback Local Storage
+                const treinosLocais = JSON.parse(localStorage.getItem('bpl_treinos_salvos') || '[]');
+                treinosLocais.push({
+                    id: Date.now(),
+                    student_name: treinoAtualmenteGerado.nomeAluno,
+                    location: treinoAtualmenteGerado.localTreino,
+                    workout_data: treinoAtualmenteGerado,
+                    created_at: new Date().toISOString()
+                });
+                localStorage.setItem('bpl_treinos_salvos', JSON.stringify(treinosLocais));
+                alert('Treino salvo com sucesso (Local)!');
+                carregarTreinosSalvos();
+            }
+        }
+
+        // 4. Carregar lista de Treinos Salvos
+        async function carregarTreinosSalvos() {
+            const container = document.getElementById('lista-treinos-salvos');
+            if (!usuarioAtual) {
+                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-4">Faça login para ver seus treinos salvos.</p>`;
+                return;
+            }
+
+            let treinos = [];
+
+            if (supabase) {
+                const { data, error } = await supabase.from('user_workouts').select('*').order('created_at', { ascending: false });
+                if (!error && data) treinos = data;
+            } else {
+                treinos = JSON.parse(localStorage.getItem('bpl_treinos_salvos') || '[]');
+            }
+
+            if (treinos.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-4">Nenhum treino salvo encontrado.</p>`;
+                return;
+            }
+
+            let html = '';
+            treinos.forEach((item, index) => {
+                const dataFormatada = new Date(item.created_at).toLocaleDateString('pt-BR');
+                html += `
+                    <div class="bg-slate-900 border border-slate-700/80 p-3 rounded-lg flex justify-between items-center hover:border-amber-500/50 transition-all">
+                        <div>
+                            <h4 class="font-bold text-amber-400 text-sm">${item.student_name}</h4>
+                            <p class="text-xs text-slate-400">📍 ${item.location || 'Sem local'} • 📅 ${dataFormatada}</p>
+                        </div>
+                        <button type="button" onclick="carregarTreinoEspecifico(${index})" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1.5 rounded font-semibold border border-amber-500/30">
+                            Abrir
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            window._treinosCache = treinos;
+        }
+
+        function carregarTreinoEspecifico(index) {
+            if (window._treinosCache && window._treinosCache[index]) {
+                const treino = window._treinosCache[index].workout_data;
+                treinoAtualmenteGerado = treino;
+                renderizarTreino(treino);
+            }
+        }
+
+        // 2. MODAL DE AUTENTICAÇÃO COM SOLICITAÇÃO E APROVAÇÃO DE ADMIN
         let modoCadastro = false;
 
         function abrirModalAuth() {
@@ -246,39 +431,77 @@
 
         function alternarModoAuth() {
             modoCadastro = !modoCadastro;
-            document.getElementById('modal-titulo').innerText = modoCadastro ? 'Criar Conta' : 'Entrar na Conta';
-            document.getElementById('btn-submeter-auth').innerText = modoCadastro ? 'Cadastrar' : 'Acessar';
+            document.getElementById('modal-titulo').innerText = modoCadastro ? 'Solicitar Cadastro' : 'Entrar na Conta';
+            document.getElementById('btn-submeter-auth').innerText = modoCadastro ? 'Enviar Solicitação' : 'Acessar';
             document.getElementById('auth-toggle-msg').innerText = modoCadastro ? 'Já tem uma conta?' : 'Não tem uma conta?';
         }
 
-        function submeterAuth() {
-            const email = document.getElementById('auth-email').value;
-            const senha = document.getElementById('auth-senha').value;
+        async function submeterAuth() {
+            const email = document.getElementById('auth-email').value.trim();
+            const senha = document.getElementById('auth-senha').value.trim();
 
             if (!email || !senha) {
                 alert('Preencha e-mail e senha!');
                 return;
             }
 
-            const usuario = { email };
-            localStorage.setItem('bpl_user', JSON.stringify(usuario));
-            atualizarInterfaceUsuario(usuario);
-            fecharModalAuth();
+            if (supabase) {
+                if (modoCadastro) {
+                    // Solicitar cadastro
+                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
+                    if (error) {
+                        alert('Erro ao cadastrar: ' + error.message);
+                    } else {
+                        alert('Solicitação enviada com sucesso! Aguarde a aprovação do administrador para conseguir acessar.');
+                        fecharModalAuth();
+                    }
+                } else {
+                    // Tentar login
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                    if (error) {
+                        alert('Erro ao logar: ' + error.message);
+                        return;
+                    }
+
+                    // Checar status de aprovação na tabela profiles
+                    const { data: profile, error: profileErr } = await supabase
+                        .from('profiles')
+                        .select('status')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    if (profile && profile.status !== 'approved') {
+                        await supabase.auth.signOut();
+                        alert('Sua conta ainda está aguardando aprovação do administrador.');
+                        return;
+                    }
+
+                    usuarioAtual = data.user;
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    fecharModalAuth();
+                    carregarTreinosSalvos();
+                }
+            } else {
+                // Fallback Sem Supabase Configurado
+                if (modoCadastro) {
+                    alert('Solicitação de cadastro registrada! Aguardando aprovação do administrador.');
+                    fecharModalAuth();
+                } else {
+                    usuarioAtual = { id: 'local_user', email };
+                    localStorage.setItem('bpl_user', JSON.stringify(usuarioAtual));
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    fecharModalAuth();
+                    carregarTreinosSalvos();
+                }
+            }
         }
 
         function fazerLogout() {
+            if (supabase) supabase.auth.signOut();
             localStorage.removeItem('bpl_user');
+            usuarioAtual = null;
             atualizarInterfaceUsuario(null);
-        }
-
-        function salvarTreino() {
-            const usuario = localStorage.getItem('bpl_user');
-            if (!usuario) {
-                alert('Faça login primeiro para salvar seu treino!');
-                abrirModalAuth();
-            } else {
-                alert('Treino salvo com sucesso!');
-            }
+            carregarTreinosSalvos();
         }
 
         function atualizarInterfaceUsuario(user) {
@@ -298,11 +521,21 @@
             }
         }
 
-        // Carrega estado de login salvo
-        window.addEventListener('DOMContentLoaded', () => {
-            const sessao = localStorage.getItem('bpl_user');
-            if (sessao) {
-                atualizarInterfaceUsuario(JSON.parse(sessao));
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (supabase) {
+                const { data } = await supabase.auth.getSession();
+                if (data?.session) {
+                    usuarioAtual = data.session.user;
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    carregarTreinosSalvos();
+                }
+            } else {
+                const sessao = localStorage.getItem('bpl_user');
+                if (sessao) {
+                    usuarioAtual = JSON.parse(sessao);
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    carregarTreinosSalvos();
+                }
             }
         });
     </script>
