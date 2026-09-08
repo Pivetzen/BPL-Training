@@ -1,643 +1,354 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BPL Training - Gerador & Customizador de Treinos</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- html2pdf.js para exportar PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPL Training - Gerador de Treinos</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- html2pdf.js CDN para exportação de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen text-gray-800">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
 
-  <!-- Navbar -->
-  <header class="bg-indigo-600 text-white shadow-md">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold tracking-wide">BPL <span class="text-indigo-200">TRAINING</span></h1>
-      <div id="auth-controls" class="flex items-center space-x-3">
-        <span id="user-email" class="text-sm font-medium hidden"></span>
-        <button id="btn-history" onclick="toggleHistoryModal()" class="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-sm font-semibold hidden transition">
-          📂 Meus Treinos
-        </button>
-        <button id="btn-auth-action" onclick="toggleAuthModal()" class="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-50 transition">
-          Entrar / Cadastrar
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-    
-    <!-- Formulário de Configuração -->
-    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 md:col-span-1 h-fit">
-      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span>⚙️</span> Configurar Treino
-      </h2>
-
-      <form id="workout-form" onsubmit="generateWorkout(event)" class="space-y-4">
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Aluno / Ficha</label>
-          <input type="text" id="student-name" placeholder="Ex: João Silva" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Objetivo</label>
-          <select id="goal" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="hipertrofia">Hipertrofia (Ganho de Massa)</option>
-            <option value="emagrecimento">Emagrecimento / Definição</option>
-            <option value="forca">Força Bruta</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Nível de Experiência</label>
-          <select id="level" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="iniciante">Iniciante (1-3 meses)</option>
-            <option value="intermediario" selected>Intermediário (3-12 meses)</option>
-            <option value="avancado">Avançado (+1 ano)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Divisão da Semana</label>
-          <select id="split" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="ABC">ABC (3 a 6 dias)</option>
-            <option value="AB">AB (Upper / Lower)</option>
-            <option value="FULLBODY">Full Body (Corpo Todo)</option>
-          </select>
-        </div>
-
-        <button type="submit" id="btn-generate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition duration-150 flex justify-center items-center gap-2">
-          🔥 Gerar Treino Personalizado
-        </button>
-      </form>
-    </section>
-
-    <!-- Exibição e Edição do Treino Gerado -->
-    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 md:col-span-2">
-      <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span>📋</span> Sua Ficha de Treino
-        </h2>
-        <div class="flex gap-2">
-          <button id="btn-save" onclick="saveWorkoutToSupabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition hidden">
-            <span>💾</span> Salvar Ficha
-          </button>
-          <button id="btn-pdf" onclick="exportToPDF()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition hidden">
-            <span>📄</span> Baixar PDF
-          </button>
-        </div>
-      </div>
-
-      <!-- Container do Treino -->
-      <div id="workout-printable" class="space-y-6">
-        <div class="text-center py-12 text-gray-400">
-          <p class="text-lg">Preencha o formulário e clique em <strong>"Gerar Treino"</strong> para visualizar sua ficha aqui.</p>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Modal de Autenticação -->
-  <div id="auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center hidden z-50">
-    <div class="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full mx-4">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-gray-800">Acessar Conta</h3>
-        <button onclick="toggleAuthModal()" class="text-gray-400 hover:text-gray-600 font-bold">&times;</button>
-      </div>
-      <form onsubmit="handleAuth(event)" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">E-mail</label>
-          <input type="email" id="auth-email" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Senha</label>
-          <input type="password" id="auth-password" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div class="flex gap-2 pt-2">
-          <button type="submit" onclick="authAction='login'" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold text-sm">Entrar</button>
-          <button type="submit" onclick="authAction='signup'" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold text-sm">Cadastrar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal de Histórico de Treinos -->
-  <div id="history-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center hidden z-50">
-    <div class="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[80vh] flex flex-col">
-      <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h3 class="text-lg font-bold text-gray-800">Meus Treinos Salvos</h3>
-        <button onclick="toggleHistoryModal()" class="text-gray-400 hover:text-gray-600 font-bold">&times;</button>
-      </div>
-      <div id="history-list" class="space-y-3 overflow-y-auto flex-1 pr-1">
-        <p class="text-gray-400 text-sm text-center py-4">Carregando treinos...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Adicionar Exercício Manual -->
-  <div id="add-exercise-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center hidden z-50">
-    <div class="bg-white p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
-      <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h3 class="text-lg font-bold text-gray-800">Adicionar Novo Exercício</h3>
-        <button onclick="toggleAddExerciseModal()" class="text-gray-400 hover:text-gray-600 font-bold">&times;</button>
-      </div>
-      <form onsubmit="confirmAddExercise(event)" class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome do Exercício</label>
-          <input type="text" id="custom-ex-name" required placeholder="Ex: Agachamento Buldózer" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Séries/Reps</label>
-            <input type="text" id="custom-ex-sets" value="4x10-12" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Descanso</label>
-            <input type="text" id="custom-ex-rest" value="60s" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Técnica Avançada</label>
-          <select id="custom-ex-technique" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="Normal">Normal</option>
-            <option value="Drop-set">Drop-set (Até a falha + -20% carga)</option>
-            <option value="Rest-pause">Rest-pause (Pausas de 10-15s)</option>
-            <option value="Bi-set">Bi-set (Combinado)</option>
-            <option value="Pico de Contração">Pico de Contração (2s no ápice)</option>
-            <option value="GVT (10x10)">GVT (10 séries de 10 reps)</option>
-            <option value="Cluster Set">Cluster Set (Pausas intra-série)</option>
-          </select>
-        </div>
-        <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="toggleAddExerciseModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold">Adicionar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Script Principal -->
-  <script>
-    // ----------------------------------------------------
-    // 1. CONFIGURAÇÃO DO SUPABASE
-    // ----------------------------------------------------
-    const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
-
-    let supabase = null;
-    try {
-      if (SUPABASE_URL && window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (err) {
-      console.warn("Supabase não pôde ser inicializado. Rodando em modo local/offline.", err);
-    }
-
-    let authAction = 'login';
-    let currentUser = null;
-    let currentGeneratedWorkout = null;
-    let activeSectionIndexToAdd = null;
-    let loadedHistoryCache = [];
-
-    // Base local de fallback
-    const fallbackDB = {
-      peito: ['Supino Reto com Barra', 'Supino Inclinado com Halteres', 'Crossover na Polia', 'Flexão de Braços'],
-      costas: ['Puxada Alta Frontal', 'Remada Curvada com Barra', 'Remada Baixa Triângulo', 'Pulldown na Polia'],
-      ombros: ['Desenvolvimento com Halteres', 'Elevação Lateral', 'Crucifixo Invertido'],
-      pernas: ['Agachamento Livre', 'Leg Press 45°', 'Cadeira Extensora', 'Mesa Flexora', 'Stiff'],
-      biceps: ['Rosca Direta com Barra W', 'Rosca Alternada com Halteres', 'Rosca Martelo'],
-      triceps: ['Tríceps Pulley com Corda', 'Tríceps Testa', 'Mergulho no Banco']
-    };
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      if (supabase) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            currentUser = session.user;
-            updateUIOnAuth();
-          }
-        } catch(e) {
-          console.warn("Sessão não verificada devido a erro no Supabase:", e);
-        }
-      }
-    });
-
-    // ----------------------------------------------------
-    // 2. GERADOR DE TREINOS (SEGURO CONTRA FALHAS)
-    // ----------------------------------------------------
-    async function generateWorkout(e) {
-      if (e) e.preventDefault();
-
-      const btnGenerate = document.getElementById('btn-generate');
-      btnGenerate.innerHTML = '⏳ Processando...';
-      btnGenerate.disabled = true;
-
-      const studentName = document.getElementById('student-name').value || 'Aluno(a)';
-      const goal = document.getElementById('goal').value;
-      const level = document.getElementById('level').value;
-      const split = document.getElementById('split').value;
-
-      let sets = "4x10-12";
-      let rest = "60s";
-      if (goal === 'forca') { sets = "5x5"; rest = "120s"; }
-      if (goal === 'emagrecimento') { sets = "3x15"; rest = "45s"; }
-
-      let structure = [];
-      if (split === 'ABC') {
-        structure = [
-          { name: 'Treino A - Peito, Ombro e Tríceps', groups: ['peito', 'ombros', 'triceps'] },
-          { name: 'Treino B - Costas e Bíceps', groups: ['costas', 'biceps'] },
-          { name: 'Treino C - Pernas Completas', groups: ['pernas'] }
-        ];
-      } else if (split === 'AB') {
-        structure = [
-          { name: 'Treino A - Superior (Upper Body)', groups: ['peito', 'costas', 'ombros', 'biceps', 'triceps'] },
-          { name: 'Treino B - Inferior (Lower Body)', groups: ['pernas'] }
-        ];
-      } else {
-        structure = [
-          { name: 'Treino Único - Full Body', groups: ['peito', 'costas', 'pernas', 'ombros'] }
-        ];
-      }
-
-      let dbExercises = null;
-      if (supabase) {
-        try {
-          const { data, error } = await supabase.from('exercises').select('*');
-          if (!error && data && data.length > 0) {
-            dbExercises = data;
-          }
-        } catch (err) {
-          console.warn("Erro ao buscar exercícios do Supabase, usando fallback local.", err);
-        }
-      }
-
-      const workoutData = structure.map(section => {
-        const sectionExercises = [];
-        section.groups.forEach(group => {
-          let available = [];
-          if (dbExercises) {
-            available = dbExercises.filter(ex => ex.muscle_group === group).map(ex => ex.name);
-          }
-          if (available.length === 0) {
-            available = fallbackDB[group] || [];
-          }
-          const selected = available.slice(0, level === 'iniciante' ? 2 : 3);
-          selected.forEach(exName => {
-            sectionExercises.push({
-              name: exName,
-              sets,
-              rest,
-              technique: 'Normal'
-            });
-          });
-        });
-        return { name: section.name, items: sectionExercises };
-      });
-
-      currentGeneratedWorkout = {
-        title: `Treino ${split} - ${studentName}`,
-        studentName,
-        goal,
-        level,
-        sections: workoutData,
-        date: new Date().toLocaleDateString('pt-BR')
-      };
-
-      renderWorkout(currentGeneratedWorkout);
-
-      btnGenerate.innerHTML = '🔥 Gerar Treino Personalizado';
-      btnGenerate.disabled = false;
-    }
-
-    // Renderiza a ficha gerada
-    function renderWorkout(workout) {
-      const container = document.getElementById('workout-printable');
-      let html = `
-        <div class="border-b-2 border-indigo-600 pb-4 mb-6 flex justify-between items-end">
-          <div>
-            <h3 class="text-2xl font-black text-indigo-600 tracking-tight">BPL TRAINING</h3>
-            <p class="text-sm font-bold text-gray-700 mt-1">Aluno(a): <span class="text-indigo-600 font-normal">${workout.studentName}</span></p>
-          </div>
-          <div class="text-right text-xs text-gray-500">
-            <p><strong>Objetivo:</strong> ${workout.goal.toUpperCase()}</p>
-            <p><strong>Nível:</strong> ${workout.level.toUpperCase()}</p>
-            <p>Data: ${workout.date}</p>
-          </div>
-        </div>
-      `;
-
-      workout.sections.forEach((section, sIdx) => {
-        html += `
-          <div class="workout-section mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50 relative">
-            <div class="flex justify-between items-center mb-3 border-b border-indigo-200 pb-2">
-              <h4 class="text-md font-bold text-indigo-700 uppercase">${section.name}</h4>
-              <button onclick="openAddExerciseModal(${sIdx})" class="no-print bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 border border-indigo-200">
-                ➕ Add Exercício
-              </button>
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-amber-500 tracking-wider">BPL <span class="text-white">Training</span></h1>
+            
+            <div id="auth-status" class="flex items-center gap-4">
+                <span id="user-display" class="text-sm text-slate-400 hidden"></span>
+                <button id="btn-login-modal" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-all">
+                    Entrar / Cadastrar
+                </button>
+                <button id="btn-logout" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded-lg transition-all hidden">
+                    Sair
+                </button>
             </div>
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="text-gray-400 border-b text-xs uppercase">
-                  <th class="py-2">Exercício</th>
-                  <th class="py-2">Séries/Reps</th>
-                  <th class="py-2">Descanso</th>
-                  <th class="py-2">Técnica</th>
-                  <th class="py-2 w-20">Carga</th>
-                  <th class="py-2 w-10 text-right no-print">Ação</th>
-                </tr>
-              </thead>
-              <tbody>
-        `;
+        </div>
+    </header>
 
-        section.items.forEach((item, iIdx) => {
-          const techBadge = item.technique && item.technique !== 'Normal' 
-            ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300 uppercase inline-block">${item.technique}</span>`
-            : `<span class="text-gray-400 text-xs">-</span>`;
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          html += `
-            <tr class="border-b last:border-0 hover:bg-white group">
-              <td class="py-2 font-semibold text-gray-800">${item.name}</td>
-              <td class="py-2 text-gray-600">
-                <input type="text" value="${item.sets}" onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'sets', this.value)" class="w-20 border border-transparent hover:border-gray-300 focus:border-indigo-500 rounded px-1 text-sm bg-transparent">
-              </td>
-              <td class="py-2 text-gray-600">
-                <input type="text" value="${item.rest}" onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'rest', this.value)" class="w-16 border border-transparent hover:border-gray-300 focus:border-indigo-500 rounded px-1 text-sm bg-transparent">
-              </td>
-              <td class="py-2">
-                <div class="no-print">
-                  <select onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'technique', this.value)" class="text-xs border border-gray-200 rounded p-1 bg-white">
-                    <option value="Normal" ${item.technique === 'Normal' ? 'selected' : ''}>Normal</option>
-                    <option value="Drop-set" ${item.technique === 'Drop-set' ? 'selected' : ''}>Drop-set</option>
-                    <option value="Rest-pause" ${item.technique === 'Rest-pause' ? 'selected' : ''}>Rest-pause</option>
-                    <option value="Bi-set" ${item.technique === 'Bi-set' ? 'selected' : ''}>Bi-set</option>
-                    <option value="Pico de Contração" ${item.technique === 'Pico de Contração' ? 'selected' : ''}>Pico Contração</option>
-                    <option value="GVT (10x10)" ${item.technique === 'GVT (10x10)' ? 'selected' : ''}>GVT (10x10)</option>
-                    <option value="Cluster Set" ${item.technique === 'Cluster Set' ? 'selected' : ''}>Cluster Set</option>
-                  </select>
+        <!-- Form Section -->
+        <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl h-fit">
+            <h2 class="text-xl font-bold mb-4 text-amber-400 border-b border-slate-700 pb-2">Configurar Treino</h2>
+            
+            <!-- FORMULARIO CORRIGIDO: usa type="button" ou e.preventDefault() -->
+            <form id="form-treino" onsubmit="event.preventDefault();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Objetivo</label>
+                    <select id="objetivo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="hipertrofia">Hipertrofia</option>
+                        <option value="forca">Força Bruta</option>
+                        <option value="emagrecimento">Resistência / Emagrecimento</option>
+                    </select>
                 </div>
-                <div class="only-print">
-                  ${techBadge}
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nível de Experiência</label>
+                    <select id="nivel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="iniciante">Iniciante</option>
+                        <option value="intermediario">Intermediário</option>
+                        <option value="avancado">Avançado</option>
+                    </select>
                 </div>
-              </td>
-              <td class="py-2"><span class="inline-block w-14 border-b border-dashed border-gray-400"></span></td>
-              <td class="py-2 text-right no-print">
-                <button onclick="removeExercise(${sIdx}, ${iIdx})" class="text-red-400 hover:text-red-600 font-bold px-1 text-base" title="Remover exercício">&times;</button>
-              </td>
-            </tr>
-          `;
-        });
 
-        html += `
-              </tbody>
-            </table>
-          </div>
-        `;
-      });
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Divisão Semanal</label>
+                    <select id="divisao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="AB">AB (2 Divisões)</option>
+                        <option value="ABC">ABC (3 Divisões)</option>
+                        <option value="ABCD">ABCD (4 Divisões)</option>
+                        <option value="ABCDE">ABCDE (5 Divisões)</option>
+                    </select>
+                </div>
 
-      container.innerHTML = html;
-      document.getElementById('btn-pdf').classList.remove('hidden');
-      if (currentUser) {
-        document.getElementById('btn-save').classList.remove('hidden');
-      }
-    }
+                <!-- Botão com type="button" explícito para garantir que não recarregue a URL -->
+                <button type="button" id="btn-gerar" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-lg transition-all mt-4 shadow-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Gerar Treino Personalizado
+                </button>
+            </form>
+        </section>
 
-    // Edição manual dos treinos
-    function updateExerciseParam(sIdx, iIdx, field, value) {
-      if (currentGeneratedWorkout) {
-        currentGeneratedWorkout.sections[sIdx].items[iIdx][field] = value;
-      }
-    }
-
-    function removeExercise(sIdx, iIdx) {
-      if (currentGeneratedWorkout) {
-        currentGeneratedWorkout.sections[sIdx].items.splice(iIdx, 1);
-        renderWorkout(currentGeneratedWorkout);
-      }
-    }
-
-    function openAddExerciseModal(sIdx) {
-      activeSectionIndexToAdd = sIdx;
-      document.getElementById('custom-ex-name').value = '';
-      toggleAddExerciseModal();
-    }
-
-    function toggleAddExerciseModal() {
-      document.getElementById('add-exercise-modal').classList.toggle('hidden');
-    }
-
-    function confirmAddExercise(e) {
-      e.preventDefault();
-      if (activeSectionIndexToAdd === null || !currentGeneratedWorkout) return;
-
-      const name = document.getElementById('custom-ex-name').value;
-      const sets = document.getElementById('custom-ex-sets').value;
-      const rest = document.getElementById('custom-ex-rest').value;
-      const technique = document.getElementById('custom-ex-technique').value;
-
-      currentGeneratedWorkout.sections[activeSectionIndexToAdd].items.push({
-        name,
-        sets,
-        rest,
-        technique
-      });
-
-      renderWorkout(currentGeneratedWorkout);
-      toggleAddExerciseModal();
-    }
-
-    // ----------------------------------------------------
-    // 3. SALVAR E HISTÓRICO
-    // ----------------------------------------------------
-    async function saveWorkoutToSupabase() {
-      if (!supabase || !currentUser) {
-        alert("Sua chave do Supabase precisa estar ativa para salvar fichas na nuvem.");
-        return;
-      }
-
-      if (!currentGeneratedWorkout) return;
-
-      try {
-        const { error } = await supabase.from('user_workouts').insert([
-          {
-            user_id: currentUser.id,
-            title: currentGeneratedWorkout.title,
-            workout_data: currentGeneratedWorkout
-          }
-        ]);
-
-        if (error) {
-          alert("Erro ao salvar o treino: " + error.message);
-        } else {
-          alert("Ficha de treino salva com sucesso!");
-        }
-      } catch (err) {
-        alert("Erro de conexão ao salvar ficha: " + err.message);
-      }
-    }
-
-    function toggleHistoryModal() {
-      const modal = document.getElementById('history-modal');
-      modal.classList.toggle('hidden');
-
-      if (!modal.classList.contains('hidden')) {
-        loadHistory();
-      }
-    }
-
-    async function loadHistory() {
-      const listContainer = document.getElementById('history-list');
-      listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">Buscando seus treinos...</p>`;
-
-      if (!supabase) {
-        listContainer.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Conexão com banco não disponível.</p>`;
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('user_workouts')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error || !data || data.length === 0) {
-          listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">Nenhum treino salvo encontrado.</p>`;
-          return;
-        }
-
-        loadedHistoryCache = data;
-
-        listContainer.innerHTML = data.map((item, index) => `
-          <div class="p-3 border rounded-lg hover:bg-indigo-50 flex justify-between items-center transition">
+        <!-- Display / Output Section -->
+        <section class="lg:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
             <div>
-              <h5 class="font-bold text-gray-800 text-sm">${item.title}</h5>
-              <p class="text-xs text-gray-500">${new Date(item.created_at).toLocaleDateString('pt-BR')}</p>
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h2 class="text-xl font-bold text-amber-400">Ficha de Treino</h2>
+                    <div class="flex gap-2">
+                        <button id="btn-salvar" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">
+                            Salvar Treino
+                        </button>
+                        <button id="btn-pdf" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">
+                            Exportar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div id="conteudo-treino" class="text-slate-300">
+                    <div class="text-center py-12 text-slate-500">
+                        <p>Selecione as opções ao lado e clique em <strong>"Gerar Treino Personalizado"</strong>.</p>
+                    </div>
+                </div>
             </div>
-            <button onclick='loadWorkoutFromHistoryIndex(${index})' class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-700">
-              Abrir
-            </button>
-          </div>
-        `).join('');
-      } catch (e) {
-        listContainer.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Erro ao carregar histórico.</p>`;
-      }
-    }
+        </section>
 
-    function loadWorkoutFromHistoryIndex(index) {
-      if (loadedHistoryCache[index]) {
-        currentGeneratedWorkout = loadedHistoryCache[index].workout_data;
-        renderWorkout(currentGeneratedWorkout);
-        toggleHistoryModal();
-      }
-    }
+    </main>
 
-    // ----------------------------------------------------
-    // 4. EXPORTAÇÃO PARA PDF
-    // ----------------------------------------------------
-    function exportToPDF() {
-      document.body.classList.add('exporting-pdf');
+    <!-- Modal de Autenticação -->
+    <div id="modal-auth" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-md w-full shadow-2xl relative">
+            <button id="btn-fechar-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white">&times;</button>
+            
+            <h3 class="text-xl font-bold text-amber-400 mb-4" id="modal-titulo">Entrar na Conta</h3>
+            
+            <form id="form-auth" onsubmit="event.preventDefault();" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-300 mb-1">E-mail</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-1">Senha</label>
+                    <input type="password" id="auth-senha" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
 
-      const element = document.getElementById('workout-printable');
-      const opt = {
-        margin:       10,
-        filename:     `ficha-treino-${new Date().getTime()}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-      };
+                <button type="button" id="btn-submeter-auth" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-lg transition-all">
+                    Acessar
+                </button>
+            </form>
 
-      html2pdf().set(opt).from(element).save().then(() => {
-        document.body.classList.remove('exporting-pdf');
-      });
-    }
+            <p class="text-sm text-slate-400 mt-4 text-center">
+                <span id="auth-toggle-msg">Não tem uma conta?</span>
+                <button id="auth-toggle-btn" class="text-amber-400 hover:underline font-semibold ml-1">Cadastrar-se</button>
+            </p>
+        </div>
+    </div>
 
-    // ----------------------------------------------------
-    // 5. MODAL DE LOGIN / CADASTRO
-    // ----------------------------------------------------
-    function toggleAuthModal() {
-      document.getElementById('auth-modal').classList.toggle('hidden');
-    }
-
-    async function handleAuth(e) {
-      e.preventDefault();
-      if (!supabase) {
-        alert("A chave de API do Supabase não pôde ser conectada.");
-        return;
-      }
-
-      const email = document.getElementById('auth-email').value;
-      const password = document.getElementById('auth-password').value;
-
-      try {
-        let result = null;
-        if (authAction === 'signup') {
-          result = await supabase.auth.signUp({ email, password });
-        } else {
-          result = await supabase.auth.signInWithPassword({ email, password });
+    <!-- Script Principal da Aplicação -->
+    <script>
+        // --- 1. CONFIGURAÇÃO DO SUPABASE ---
+        // Substitua com as suas credenciais reais do Supabase se desejar persistir online
+        const SUPABASE_URL = 'HTTPS://SEU-PROJETO.SUPABASE.CO';
+        const SUPABASE_KEY = 'SUA_ANON_KEY';
+        
+        let supabase = null;
+        if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'HTTPS://SEU-PROJETO.SUPABASE.CO') {
+            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         }
 
-        if (result.error) {
-          alert('Erro de autenticação: ' + result.error.message);
-        } else {
-          currentUser = result.data.user;
-          updateUIOnAuth();
-          toggleAuthModal();
-          alert(authAction === 'signup' ? 'Cadastro realizado com sucesso!' : 'Login efetuado com sucesso!');
+        // --- 2. BASE DE DADOS DOS EXERCÍCIOS ---
+        const exerciciosDB = {
+            peito: ["Supino Reto com Barra", "Supino Inclinado com Halteres", "Crossover na Polia", "Crucifixo Reto"],
+            costas: ["Puxada Alta Frontal", "Remada Curvada com Barra", "Remada Baixa no Cabo", "Pulldown"],
+            pernas: ["Agachamento Livre", "Leg Press 45°", "Cadeira Extensora", "Mesa Flexora", "Elevação Pélvica"],
+            ombros: ["Desenvolvimento com Halteres", "Elevação Lateral", "Elevação Frontal", "Crucifixo Invertido"],
+            braços: ["Rosca Direta", "Rosca Scott", "Tríceps Corda", "Tríceps Testa", "Paralelas"]
+        };
+
+        // --- 3. REFERÊNCIAS DO DOM ---
+        const btnGerar = document.getElementById('btn-gerar');
+        const conteudoTreino = document.getElementById('conteudo-treino');
+        const btnSalvar = document.getElementById('btn-salvar');
+        const btnPdf = document.getElementById('btn-pdf');
+        
+        const modalAuth = document.getElementById('modal-auth');
+        const btnLoginModal = document.getElementById('btn-login-modal');
+        const btnFecharModal = document.getElementById('btn-fechar-modal');
+        const btnSubmeterAuth = document.getElementById('btn-submeter-auth');
+        const authToggleBtn = document.getElementById('auth-toggle-btn');
+        const btnLogout = document.getElementById('btn-logout');
+        const userDisplay = document.getElementById('user-display');
+
+        let modoCadastro = false;
+        let usuarioAtual = null;
+
+        // --- 4. GERADOR DE TREINOS ---
+        btnGerar.addEventListener('click', (e) => {
+            e.preventDefault(); // Previne qualquer recarregamento da página ou envio de formulário
+
+            const objetivo = document.getElementById('objetivo').value;
+            const nivel = document.getElementById('nivel').value;
+            const divisao = document.getElementById('divisao').value;
+
+            const treinoGerado = construirTreino(objetivo, nivel, divisao);
+            renderizarTreino(treinoGerado, objetivo, nivel, divisao);
+        });
+
+        function construirTreino(objetivo, nivel, divisao) {
+            const seriesReps = objetivo === 'forca' ? '4 séries x 5 repetições' : 
+                               objetivo === 'hipertrofia' ? '3 séries x 10 a 12 repetições' : 
+                               '3 séries x 15 repetições';
+
+            const estrutura = {
+                'AB': [
+                    { nome: 'Treino A - Peito, Ombro e Tríceps', grupos: ['peito', 'ombros', 'braços'] },
+                    { nome: 'Treino B - Costas, Pernas e Bíceps', grupos: ['costas', 'pernas', 'braços'] }
+                ],
+                'ABC': [
+                    { nome: 'Treino A - Peito e Tríceps', grupos: ['peito', 'braços'] },
+                    { nome: 'Treino B - Costas e Bíceps', grupos: ['costas', 'braços'] },
+                    { nome: 'Treino C - Pernas e Ombro', grupos: ['pernas', 'ombros'] }
+                ],
+                'ABCD': [
+                    { nome: 'Treino A - Peito e Ombro', grupos: ['peito', 'ombros'] },
+                    { nome: 'Treino B - Costas e Trapézio', grupos: ['costas'] },
+                    { nome: 'Treino C - Pernas Completo', grupos: ['pernas'] },
+                    { nome: 'Treino D - Braços (Bíceps e Tríceps)', grupos: ['braços'] }
+                ],
+                'ABCDE': [
+                    { nome: 'Treino A - Peito', grupos: ['peito'] },
+                    { nome: 'Treino B - Costas', grupos: ['costas'] },
+                    { nome: 'Treino C - Pernas', grupos: ['pernas'] },
+                    { nome: 'Treino D - Ombros', grupos: ['ombros'] },
+                    { nome: 'Treino E - Braços', grupos: ['braços'] }
+                ]
+            };
+
+            const divisaoSelecionada = estrutura[divisao] || estrutura['ABC'];
+
+            return divisaoSelecionada.map(bloco => {
+                let exerciciosBloco = [];
+                bloco.grupos.forEach(grupo => {
+                    const lista = exerciciosDB[grupo] || [];
+                    const selecionados = lista.slice(0, nivel === 'iniciante' ? 2 : 3);
+                    selecionados.forEach(ex => {
+                        exerciciosBloco.push({ nome: ex, esquema: seriesReps });
+                    });
+                });
+                return { titulo: bloco.nome, exercicios: exerciciosBloco };
+            });
         }
-      } catch(err) {
-        alert("Falha na requisição de autenticação: " + err.message);
-      }
-    }
 
-    function updateUIOnAuth() {
-      if (currentUser) {
-        document.getElementById('user-email').innerText = currentUser.email;
-        document.getElementById('user-email').classList.remove('hidden');
-        document.getElementById('btn-history').classList.remove('hidden');
-        document.getElementById('btn-auth-action').innerText = 'Sair';
-        document.getElementById('btn-auth-action').onclick = logout;
-        if (currentGeneratedWorkout) {
-          document.getElementById('btn-save').classList.remove('hidden');
+        function renderizarTreino(treino, objetivo, nivel, divisao) {
+            let html = `
+                <div id="ficha-impressao" class="space-y-6">
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-wrap gap-4 justify-between text-sm">
+                        <p><strong class="text-amber-400">Objetivo:</strong> ${objetivo.toUpperCase()}</p>
+                        <p><strong class="text-amber-400">Nível:</strong> ${nivel.toUpperCase()}</p>
+                        <p><strong class="text-amber-400">Divisão:</strong> ${divisao}</p>
+                    </div>
+            `;
+
+            treino.forEach(bloco => {
+                html += `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                        <h3 class="text-lg font-bold text-amber-400 mb-3 border-b border-slate-800 pb-1">${bloco.titulo}</h3>
+                        <ul class="space-y-2">
+                `;
+                bloco.exercicios.forEach(ex => {
+                    html += `
+                        <li class="flex justify-between items-center text-sm bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                            <span class="font-medium text-slate-200">${ex.nome}</span>
+                            <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-1 rounded font-mono">${ex.esquema}</span>
+                        </li>
+                    `;
+                });
+                html += `</ul></div>`;
+            });
+
+            html += `</div>`;
+            conteudoTreino.innerHTML = html;
+
+            btnSalvar.classList.remove('hidden');
+            btnPdf.classList.remove('hidden');
         }
-      } else {
-        document.getElementById('user-email').classList.add('hidden');
-        document.getElementById('btn-history').classList.add('hidden');
-        document.getElementById('btn-save').classList.add('hidden');
-        document.getElementById('btn-auth-action').innerText = 'Entrar / Cadastrar';
-        document.getElementById('btn-auth-action').onclick = toggleAuthModal;
-      }
-    }
 
-    async function logout() {
-      if (supabase) {
-        try { await supabase.auth.signOut(); } catch(e){}
-      }
-      currentUser = null;
-      updateUIOnAuth();
-    }
-  </script>
+        // --- 5. EXPORTAÇÃO EM PDF ---
+        btnPdf.addEventListener('click', (e) => {
+            e.preventDefault();
+            const elemento = document.getElementById('ficha-impressao');
+            if (!elemento) return;
 
-  <style>
-    .exporting-pdf .no-print {
-      display: none !important;
-    }
-    .only-print {
-      display: none;
-    }
-    .exporting-pdf .only-print {
-      display: block !important;
-    }
-    .exporting-pdf .workout-section {
-      page-break-inside: avoid;
-    }
-  </style>
+            const opt = {
+                margin:       10,
+                filename:     'ficha-de-treino-bpl.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(elemento).save();
+        });
+
+        // --- 6. CONTROLE DO MODAL DE AUTENTICAÇÃO ---
+        btnLoginModal.addEventListener('click', () => modalAuth.classList.remove('hidden'));
+        btnFecharModal.addEventListener('click', () => modalAuth.classList.add('hidden'));
+
+        authToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modoCadastro = !modoCadastro;
+            document.getElementById('modal-titulo').innerText = modoCadastro ? 'Criar Conta' : 'Entrar na Conta';
+            btnSubmeterAuth.innerText = modoCadastro ? 'Cadastrar' : 'Acessar';
+            document.getElementById('auth-toggle-msg').innerText = modoCadastro ? 'Já tem uma conta?' : 'Não tem uma conta?';
+            authToggleBtn.innerText = modoCadastro ? 'Fazer Login' : 'Cadastrar-se';
+        });
+
+        btnSubmeterAuth.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const senha = document.getElementById('auth-senha').value;
+
+            if (!email || !senha) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            // Simulação local / Supabase Auth
+            if (supabase) {
+                if (modoCadastro) {
+                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
+                    if (error) alert(error.message);
+                    else alert('Cadastro realizado com sucesso!');
+                } else {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                    if (error) alert(error.message);
+                    else {
+                        atualizarSessao(data.user);
+                        modalAuth.classList.add('hidden');
+                    }
+                }
+            } else {
+                // Fallback para persistência local (Sessão simulada no localStorage)
+                usuarioAtual = { email };
+                localStorage.setItem('bpl_user', JSON.stringify(usuarioAtual));
+                atualizarSessao(usuarioAtual);
+                modalAuth.classList.add('hidden');
+            }
+        });
+
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (supabase) supabase.auth.signOut();
+            localStorage.removeItem('bpl_user');
+            atualizarSessao(null);
+        });
+
+        function atualizarSessao(user) {
+            usuarioAtual = user;
+            if (user) {
+                userDisplay.innerText = user.email;
+                userDisplay.classList.remove('hidden');
+                btnLogout.classList.remove('hidden');
+                btnLoginModal.classList.add('hidden');
+            } else {
+                userDisplay.classList.add('hidden');
+                btnLogout.classList.add('hidden');
+                btnLoginModal.classList.remove('hidden');
+            }
+        }
+
+        // Restaurar sessão ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            const sessaoSalva = localStorage.getItem('bpl_user');
+            if (sessaoSalva) {
+                atualizarSessao(JSON.parse(sessaoSalva));
+            }
+        });
+    </script>
 </body>
 </html>
