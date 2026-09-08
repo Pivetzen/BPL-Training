@@ -327,13 +327,22 @@
 
         // PAINEL ADMIN: GERENCIAR USUÁRIOS
         async function carregarUsuariosAdmin() {
-            const { data: users, error } = await supabaseClient.from('profiles').select('*');
+            const { data: users, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .neq('id', currentUser.id); // Filtra para não exibir o próprio admin logado
+        
             const tbody = document.getElementById('admin-users-table');
             if (error || !users) {
                 tbody.innerHTML = `<tr><td colspan="4" class="py-2 text-rose-500">Erro ao carregar usuários.</td></tr>`;
                 return;
             }
-
+        
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-3 text-center text-slate-500">Nenhum outro usuário cadastrado.</td></tr>`;
+                return;
+            }
+        
             tbody.innerHTML = users.map(u => `
                 <tr class="border-b border-slate-800/60 hover:bg-slate-800/40">
                     <td class="py-2.5 px-3 font-mono text-[11px] text-slate-400">${u.id}</td>
