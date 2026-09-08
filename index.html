@@ -11,11 +11,11 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <!-- HEADER -->
+    <!-- HEADER LIMPO -->
     <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
             <div class="bg-amber-500 text-slate-950 font-black px-3 py-1.5 rounded-lg text-lg tracking-wider">BPL</div>
-            <h1 class="text-xl font-bold tracking-tight text-white">Training AI <span class="text-xs text-amber-400 font-normal ml-2">| Sistema Profissional de Prescrição</span></h1>
+            <h1 class="text-xl font-bold tracking-tight text-white">Training AI <span class="text-xs text-amber-400 font-normal ml-2">| Modo Prático</span></h1>
         </div>
         <div id="user-menu" class="flex items-center space-x-4">
             <span id="user-info" class="text-sm text-slate-400">Carregando...</span>
@@ -25,134 +25,129 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- MAIN CONTAINER - FLUXO PASSO A PASSO -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 space-y-6">
         
-        <!-- PAINEL ESQUERDO: PARÂMETROS E IA -->
-        <section class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
-            <div>
-                <h2 class="text-lg font-semibold mb-4 text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-list"></i> Parâmetros da Prescrição
-                </h2>
-                <input type="hidden" id="edit-workout-id" value="">
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Aluno / Atleta *</label>
-                        <input type="text" id="student-name" placeholder="Ex: Matheus Maia" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Divisão de Treino (Split) *</label>
-                        <select id="workout-split" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="A">Treino A (Fullbody / Único)</option>
-                            <option value="AB" selected>Treino AB (Superior / Inferior)</option>
-                            <option value="ABC">Treino ABC (Push / Pull / Legs)</option>
-                            <option value="ABCD">Treino ABCD (Upper / Lower / Isolado)</option>
-                            <option value="ABCDE">Treino ABCDE (Músculo por Dia)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Objetivo *</label>
-                        <select id="workout-goal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="Hipertrofia">Hipertrofia</option>
-                            <option value="Condicionamento">Condicionamento</option>
-                            <option value="Emagrecimento">Emagrecimento</option>
-                            <option value="Fisioterapia">Fisioterapia</option>
-                            <option value="Apenas Aeróbico">Apenas Aeróbico</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Nível *</label>
-                        <select id="workout-level" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="Iniciante">Iniciante</option>
-                            <option value="Intermediário">Intermediário</option>
-                            <option value="Avançado">Avançado</option>
-                        </select>
-                    </div>
+        <!-- ETAPA 1: CONFIGURAÇÃO RÁPIDA -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+            <h2 class="text-md font-semibold mb-4 text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> 1. Configurar Prescrição
+            </h2>
+            <input type="hidden" id="edit-workout-id" value="">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Aluno / Atleta *</label>
+                    <input type="text" id="student-name" placeholder="Ex: Matheus Maia" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
-            </div>
-
-            <button onclick="gerarTreinoComIA()" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btn-gerar-text">Gerar Ficha e Blocos por Letra</span>
-            </button>
-
-            <!-- TREINOS SALVOS -->
-            <div class="mt-8 border-t border-slate-800 pt-4">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-semibold text-slate-300">Fichas Salvas & Editáveis</h3>
-                    <button onclick="carregarTreinosSalvos()" class="text-xs text-amber-400 hover:underline">Atualizar</button>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Divisão (Split) *</label>
+                    <select id="workout-split" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <option value="A">Treino A (Fullbody)</option>
+                        <option value="AB" selected>Treino AB (Sup/Inf)</option>
+                        <option value="ABC">Treino ABC</option>
+                        <option value="ABCD">Treino ABCD</option>
+                        <option value="ABCDE">Treino ABCDE</option>
+                    </select>
                 </div>
-                <div id="saved-workouts-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-500">Faça login para gerenciar suas fichas salvas.</p>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Objetivo *</label>
+                    <select id="workout-goal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <option value="Hipertrofia">Hipertrofia</option>
+                        <option value="Condicionamento">Condicionamento</option>
+                        <option value="Emagrecimento">Emagrecimento</option>
+                        <option value="Fisioterapia">Fisioterapia</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="gerarTreinoComIA()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Ficha
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- PAINEL DIREITO: CARDS POR LETRA (AB, ABC...) E FICHA OFICIAL -->
-        <section class="lg:col-span-8 flex flex-col gap-6">
+        <!-- ETAPA 2: CARDS RETRÁTEIS POR LETRA (Oculta a poluição visual inicial) -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-md font-semibold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> 2. Acervo e Banco de Exercícios por Letra
+                </h2>
+                <button onclick="toggleAcervo()" id="btn-toggle-acervo" class="text-xs text-amber-400 hover:underline bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-solid fa-chevron-down mr-1"></i> Expandir Blocos
+                </button>
+            </div>
+            <p class="text-xs text-slate-400">O acervo fica recolhido por padrão para manter a tela limpa. Expanda apenas se quiser trocar exercícios clicando nas sugestões.</p>
             
-            <!-- PAINEL ADMIN -->
-            <div id="admin-panel" class="hidden bg-slate-900 border border-amber-500/40 rounded-2xl p-5 shadow-lg">
-                <h3 class="text-md font-bold text-amber-400 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved"></i> Painel Administrativo
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400">
-                                <th class="py-2 px-3">E-mail</th>
-                                <th class="py-2 px-3">Status</th>
-                                <th class="py-2 px-3">Função</th>
-                                <th class="py-2 px-3 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-table"></tbody>
-                    </table>
+            <div id="treino-blocos-container" class="hidden space-y-4 mt-4 pt-4 border-t border-slate-800">
+                <p class="text-xs text-slate-500">Gere uma ficha acima para visualizar os blocos por letra.</p>
+            </div>
+        </section>
+
+        <!-- ETAPA 3: FICHA DE TREINO OFICIAL CONSOLIDADA (FOCO PRINCIPAL) -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-user text-amber-400"></i> 3. Ficha de Treino Oficial
+                    </h2>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="adicionarExercicioManual()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Adicionar
+                    </button>
+                    <button onclick="exportarPDF()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </button>
+                    <button onclick="salvarTreinoNoPerfil()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Salvar
+                    </button>
                 </div>
             </div>
 
-            <!-- CONTAINER DE CARDS POR LETRA DE TREINO (Ex: Treino A, Treino B...) -->
-            <div id="treino-blocos-container" class="space-y-4">
-                <div class="bg-slate-900 border border-dashed border-slate-800 rounded-2xl p-6 text-center text-slate-500">
-                    <i class="fa-solid fa-layer-group text-2xl mb-2 text-amber-500/50"></i>
-                    <p class="text-xs">Clique em "Gerar Ficha e Blocos por Letra" para visualizar os cards estruturados por divisão (A, B, C...) com 10 opções por grupo muscular e campos de preenchimento inteligente.</p>
+            <!-- CONTEÚDO DA FICHA -->
+            <div id="ficha-preview" class="space-y-6 bg-slate-950 p-6 rounded-xl border border-slate-800/60">
+                <div class="text-center py-12 text-slate-500">
+                    Clique em "Gerar Ficha" acima para iniciar a montagem de forma limpa e direta.
                 </div>
             </div>
 
-            <!-- FICHA DE TREINO OFICIAL CONSOLIDADA -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex-1 flex flex-col justify-between">
-                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-user text-amber-400"></i> Ficha de Treino Oficial Consolidada
-                        </h2>
-                    </div>
-                    <div class="flex gap-2 flex-wrap">
-                        <button onclick="adicionarExercicioManual()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i> Novo Exercício
-                        </button>
-                        <button onclick="exportarPDF()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-                        </button>
-                        <button onclick="salvarTreinoNoPerfil()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Salvar / Atualizar Ficha
-                        </button>
+            <!-- PAINEL DE TREINOS SALVOS & ADMIN (RECOLHIDOS EM ACCORDION / RODAPÉ LIMPO) -->
+            <div class="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-300 mb-3 flex items-center justify-between">
+                        <span>Fichas Salvas no Perfil</span>
+                        <button onclick="carregarTreinosSalvos()" class="text-xs text-amber-400 hover:underline">Atualizar</button>
+                    </h3>
+                    <div id="saved-workouts-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500">Faça login para ver suas fichas.</p>
                     </div>
                 </div>
 
-                <!-- CONTEÚDO DA FICHA -->
-                <div id="ficha-preview" class="space-y-6 flex-1 bg-slate-950 p-6 rounded-xl border border-slate-800/60">
-                    <div class="text-center py-12 text-slate-500">
-                        A ficha consolidados aparecerá aqui conforme você preencher ou selecionar os exercícios nos blocos acima.
+                <div id="admin-panel" class="hidden">
+                    <h3 class="text-sm font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i> Administração de Usuários
+                    </h3>
+                    <div class="overflow-x-auto max-h-40 overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">
+                                    <th class="py-1 px-2">E-mail</th>
+                                    <th class="py-1 px-2">Status</th>
+                                    <th class="py-1 px-2 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table"></tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div id="status-mensagem" class="mt-4 text-xs text-center text-emerald-400 font-medium"></div>
             </div>
+
+            <div id="status-mensagem" class="mt-4 text-xs text-center text-emerald-400 font-medium"></div>
         </section>
     </main>
 
-    <!-- DATALIST GLOBAL PARA AUTOCOMPLETE DE EXERCÍCIOS POR GRUPO -->
+    <!-- DATALIST GLOBAL PARA AUTOCOMPLETE -->
     <datalist id="banco-exercicios-datalist"></datalist>
 
     <!-- MODAL AUTH -->
@@ -196,58 +191,17 @@
             exercicios: []
         };
 
-        // Acervo global com 10 opções por grupo muscular estruturado
         let acervoGlobalExercicios = {
-            'Peitoral': [
-                'Supino Reto com Barra', 'Supino Inclinado com Halteres', 'Crucifixo na Polia', 'Supino Declinado', 
-                'Flexão de Braço no Solo', 'Cross-over Polia Alta', 'Supino Reto com Halteres', 'Peck Deck (Voador)', 
-                'Pullover com Halteres', 'Supino Inclinado na Máquina'
-            ],
-            'Costas': [
-                'Puxada Alta na Polia (Pronada)', 'Remada Baixa com Triângulo', 'Barra Fixa Pronada', 'Remada Curvada com Barra', 
-                'Remada Unilateral com Halter (Serrote)', 'Puxada com Pegada Neutra', 'Pulldown na Polia', 'Remada Cavalinho', 
-                'Remada Alta na Polia', 'Levantamento Terra'
-            ],
-            'Quadríceps': [
-                'Agachamento Livre', 'Leg Press 45º', 'Cadeira Extensora', 'Agachamento Hack', 
-                'Afundo com Halteres', 'Agachamento Búlgaro', 'Leg Press Horizontal', 'Passada em Caminhada', 
-                'Agachamento Sumô', 'Extensora Unilateral'
-            ],
-            'Posterior': [
-                'Cadeira Flexora', 'Mesa Flexora', 'Stiff com Barra', 'Good Morning', 
-                'Flexor Vertical', 'Stiff com Halteres', 'Nordic Hamstring Curl', 'Flexão de Perna em Pé na Polia', 
-                'Levantamento Terra Romeno', 'Kettlebell Swing'
-            ],
-            'Glúteos': [
-                'Elevação Pélvica com Barra', 'Hip Thrust na Máquina', 'Glúteo na Polia (Coice)', 'Cadeira Abdutora', 
-                'Elevação Pélvica Unilateral', 'Quatro Apoios na Polia', 'Sumô com Halter', 'Glúteo na Máquina', 
-                'Step-up com Halteres', 'Extensão de Quadril no Solo'
-            ],
-            'Ombros': [
-                'Desenvolvimento com Halteres', 'Elevação Lateral com Halteres', 'Desenvolvimento Militar com Barra', 'Elevação Frontal', 
-                'Crucifixo Inverso na Polia', 'Elevação Lateral na Polia', 'Desenvolvimento na Máquina', 'Remada Alta com Barra', 
-                'Face Pull', 'Encolhimento de Ombros'
-            ],
-            'Bíceps': [
-                'Rosca Direta com Barra', 'Rosca Alternada com Halteres', 'Rosca Scott com Barra W', 'Rosca Concentrada', 
-                'Rosca Martelo com Halteres', 'Rosca na Polia Baixa', 'Rosca Inversa com Barra', 'Rosca 45º com Halteres', 
-                'Rosca Cabaço / Spider', 'Rosca Direta na Máquina'
-            ],
-            'Tríceps': [
-                'Tríceps Pulley na Polia', 'Tríceps Testa com Barra W', 'Tríceps Corda na Polia', 'Supino com Pegada Fechada', 
-                'Tríceps Frances com Halter', 'Mergulho nas Paralelas', 'Tríceps Coice na Polia', 'Tríceps na Máquina', 
-                'Tríceps Testa na Polia', 'Mergulho no Banco'
-            ],
-            'Abdômen': [
-                'Abdominal Supra no Solo', 'Abdominal Infra na Paralela', 'Abdominal na Polia (Crunch)', 'Prancha Abdominal Isométrica', 
-                'Abdominal na Máquina', 'Elevação de Pernas Suspenso', 'Abdominal Oblíquo com Halter', 'Russian Twist com Peso', 
-                'Abdominal Canivete', 'Prancha Lateral'
-            ],
-            'Panturrilha': [
-                'Panturrilha em Pé na Máquina', 'Panturrilha Sentado (Solear)', 'Panturrilha no Leg Press 45º', 'Panturrilha em Pé Livre', 
-                'Panturrilha Unilateral no Degrau', 'Panturrilha na Máquina Donkey', 'Panturrilha no Smith', 'Panturrilha Tibial', 
-                'Panturrilha Sentado na Máquina', 'Panturrilha Jump'
-            ]
+            'Peitoral': ['Supino Reto com Barra', 'Supino Inclinado com Halteres', 'Crucifixo na Polia', 'Supino Declinado', 'Flexão de Braço no Solo', 'Cross-over Polia Alta', 'Supino Reto com Halteres', 'Peck Deck (Voador)', 'Pullover com Halteres', 'Supino Inclinado na Máquina'],
+            'Costas': ['Puxada Alta na Polia (Pronada)', 'Remada Baixa com Triângulo', 'Barra Fixa Pronada', 'Remada Curvada com Barra', 'Remada Unilateral com Halter (Serrote)', 'Puxada com Pegada Neutra', 'Pulldown na Polia', 'Remada Cavalinho', 'Remada Alta na Polia', 'Levantamento Terra'],
+            'Quadríceps': ['Agachamento Livre', 'Leg Press 45º', 'Cadeira Extensora', 'Agachamento Hack', 'Afundo com Halteres', 'Agachamento Búlgaro', 'Leg Press Horizontal', 'Passada em Caminhada', 'Agachamento Sumô', 'Extensora Unilateral'],
+            'Posterior': ['Cadeira Flexora', 'Mesa Flexora', 'Stiff com Barra', 'Good Morning', 'Flexor Vertical', 'Stiff com Halteres', 'Nordic Hamstring Curl', 'Flexão de Perna em Pé na Polia', 'Levantamento Terra Romeno', 'Kettlebell Swing'],
+            'Glúteos': ['Elevação Pélvica com Barra', 'Hip Thrust na Máquina', 'Glúteo na Polia (Coice)', 'Cadeira Abdutora', 'Elevação Pélvica Unilateral', 'Quatro Apoios na Polia', 'Sumô com Halter', 'Glúteo na Máquina', 'Step-up com Halteres', 'Extensão de Quadril no Solo'],
+            'Ombros': ['Desenvolvimento com Halteres', 'Elevação Lateral com Halteres', 'Desenvolvimento Militar com Barra', 'Elevação Frontal', 'Crucifixo Inverso na Polia', 'Elevação Lateral na Polia', 'Desenvolvimento na Máquina', 'Remada Alta com Barra', 'Face Pull', 'Encolhimento de Ombros'],
+            'Bíceps': ['Rosca Direta com Barra', 'Rosca Alternada com Halteres', 'Rosca Scott com Barra W', 'Rosca Concentrada', 'Rosca Martelo com Halteres', 'Rosca na Polia Baixa', 'Rosca Inversa com Barra', 'Rosca 45º com Halteres', 'Rosca Cabaço / Spider', 'Rosca Direta na Máquina'],
+            'Tríceps': ['Tríceps Pulley na Polia', 'Tríceps Testa com Barra W', 'Tríceps Corda na Polia', 'Supino com Pegada Fechada', 'Tríceps Frances com Halter', 'Mergulho nas Paralelas', 'Tríceps Coice na Polia', 'Tríceps na Máquina', 'Tríceps Testa na Polia', 'Mergulho no Banco'],
+            'Abdômen': ['Abdominal Supra no Solo', 'Abdominal Infra na Paralela', 'Abdominal na Polia (Crunch)', 'Prancha Abdominal Isométrica', 'Abdominal na Máquina', 'Elevação de Pernas Suspenso', 'Abdominal Oblíquo com Halter', 'Russian Twist com Peso', 'Abdominal Canivete', 'Prancha Lateral'],
+            'Panturrilha': ['Panturrilha em Pé na Máquina', 'Panturrilha Sentado (Solear)', 'Panturrilha no Leg Press 45º', 'Panturrilha em Pé Livre', 'Panturrilha Unilateral no Degrau', 'Panturrilha na Máquina Donkey', 'Panturrilha no Smith', 'Panturrilha Tibial', 'Panturrilha Sentado na Máquina', 'Panturrilha Jump']
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -311,7 +265,7 @@
             document.getElementById('auth-btn').textContent = 'Entrar / Cadastrar';
             document.getElementById('auth-btn').onclick = abrirModalAuth;
             document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('saved-workouts-list').innerHTML = '<p class="text-xs text-slate-500">Faça login para gerenciar suas fichas salvas.</p>';
+            document.getElementById('saved-workouts-list').innerHTML = '<p class="text-xs text-slate-500">Faça login para gerenciar suas fichas.</p>';
         }
 
         function abrirModalAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
@@ -342,17 +296,15 @@
             const { data: users } = await supabaseClient.from('profiles').select('*').neq('id', currentUser.id);
             const tbody = document.getElementById('admin-users-table');
             if (!users || users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-2 text-slate-500">Nenhum usuário cadastrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="py-2 text-slate-500">Nenhum usuário.</td></tr>`;
                 return;
             }
             tbody.innerHTML = users.map(u => `
                 <tr class="border-b border-slate-800">
-                    <td class="py-2 px-3 text-slate-200">${u.email}</td>
-                    <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${u.status}</span></td>
-                    <td class="py-2 px-3">${u.role}</td>
-                    <td class="py-2 px-3 text-right space-x-1">
+                    <td class="py-1.5 px-2 text-slate-200">${u.email}</td>
+                    <td class="py-1.5 px-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${u.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${u.status}</span></td>
+                    <td class="py-1.5 px-2 text-right space-x-1">
                         <button onclick="mudarStatus('${u.id}', 'approved')" class="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px]">Aprovar</button>
-                        <button onclick="mudarStatus('${u.id}', 'rejected')" class="bg-rose-600 text-white px-2 py-0.5 rounded text-[10px]">Bloquear</button>
                     </td>
                 </tr>
             `).join('');
@@ -374,53 +326,58 @@
             datalist.innerHTML = optionsHTML;
         }
 
-        // GERADOR DOS CARDS POR LETRA (A, AB, ABC, ABCD, ABCDE) E GAPS VAZIOS
+        function toggleAcervo() {
+            const container = document.getElementById('treino-blocos-container');
+            const btn = document.getElementById('btn-toggle-acervo');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up mr-1"></i> Recolher Blocos';
+            } else {
+                container.classList.add('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-chevron-down mr-1"></i> Expandir Blocos';
+            }
+        }
+
         function gerarTreinoComIA() {
             const nome = document.getElementById('student-name').value || 'Atleta';
             const split = document.getElementById('workout-split').value;
             const objetivo = document.getElementById('workout-goal').value;
-            const nivel = document.getElementById('workout-level').value;
 
             treinoAtualGerado.nome = nome;
             treinoAtualGerado.split = split;
             treinoAtualGerado.objetivo = objetivo;
-            treinoAtualGerado.nivel = nivel;
 
-            // Definir estrutura de blocos por letra com base no split selecionado
             let blocosConfig = [];
             if (split === 'A') {
-                blocosConfig = [
-                    { letra: 'A', titulo: 'Treino A (Fullbody)', grupos: ['Peitoral', 'Costas', 'Quadríceps', 'Posterior', 'Ombros', 'Bíceps', 'Tríceps', 'Abdomen'] }
-                ];
+                blocosConfig = [{ letra: 'A', titulo: 'Treino A (Fullbody)', grupos: ['Peitoral', 'Costas', 'Quadríceps', 'Posterior', 'Ombros', 'Bíceps', 'Tríceps', 'Abdomen'] }];
             } else if (split === 'AB') {
                 blocosConfig = [
-                    { letra: 'A', titulo: 'Treino A - Membros Superiores & Core', grupos: ['Peitoral', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 'Abdômen'] },
-                    { letra: 'B', titulo: 'Treino B - Membros Inferiores', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
+                    { letra: 'A', titulo: 'Treino A - Superiores & Core', grupos: ['Peitoral', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 'Abdômen'] },
+                    { letra: 'B', titulo: 'Treino B - Inferiores', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
                 ];
             } else if (split === 'ABC') {
                 blocosConfig = [
-                    { letra: 'A', titulo: 'Treino A - Push (Peito, Ombro, Tríceps)', grupos: ['Peitoral', 'Ombros', 'Tríceps'] },
-                    { letra: 'B', titulo: 'Treino B - Pull (Costas, Bíceps, Abdômen)', grupos: ['Costas', 'Bíceps', 'Abdômen'] },
-                    { letra: 'C', titulo: 'Treino C - Legs (Pernas Completas)', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
+                    { letra: 'A', titulo: 'Treino A - Push', grupos: ['Peitoral', 'Ombros', 'Tríceps'] },
+                    { letra: 'B', titulo: 'Treino B - Pull', grupos: ['Costas', 'Bíceps', 'Abdômen'] },
+                    { letra: 'C', titulo: 'Treino C - Legs', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
                 ];
             } else if (split === 'ABCD') {
                 blocosConfig = [
-                    { letra: 'A', titulo: 'Treino A - Upper (Peito e Costas)', grupos: ['Peitoral', 'Costas'] },
-                    { letra: 'B', titulo: 'Treino B - Lower (Quadríceps e Panturrilha)', grupos: ['Quadríceps', 'Panturrilha'] },
-                    { letra: 'C', titulo: 'Treino C - Upper (Ombros e Braços)', grupos: ['Ombros', 'Bíceps', 'Tríceps'] },
-                    { letra: 'D', titulo: 'Treino D - Lower (Posterior e Glúteos)', grupos: ['Posterior', 'Glúteos', 'Abdômen'] }
+                    { letra: 'A', titulo: 'Treino A - Upper 1', grupos: ['Peitoral', 'Costas'] },
+                    { letra: 'B', titulo: 'Treino B - Lower 1', grupos: ['Quadríceps', 'Panturrilha'] },
+                    { letra: 'C', titulo: 'Treino C - Upper 2', grupos: ['Ombros', 'Bíceps', 'Tríceps'] },
+                    { letra: 'D', titulo: 'Treino D - Lower 2', grupos: ['Posterior', 'Glúteos', 'Abdômen'] }
                 ];
             } else if (split === 'ABCDE') {
                 blocosConfig = [
-                    { letra: 'A', titulo: 'Treino A - Peitoral e Abdômen', grupos: ['Peitoral', 'Abdômen'] },
-                    { letra: 'B', titulo: 'Treino B - Costas e Panturrilha', grupos: ['Costas', 'Panturrilha'] },
-                    { letra: 'C', titulo: 'Treino C - Pernas (Foco Quadríceps)', grupos: ['Quadríceps', 'Glúteos'] },
-                    { letra: 'D', titulo: 'Treino D - Ombros e Trapézio', grupos: ['Ombros'] },
-                    { letra: 'E', titulo: 'Treino E - Braços (Bíceps e Tríceps)', grupos: ['Bíceps', 'Tríceps', 'Posterior'] }
+                    { letra: 'A', titulo: 'Treino A - Peito', grupos: ['Peitoral', 'Abdômen'] },
+                    { letra: 'B', titulo: 'Treino B - Costas', grupos: ['Costas', 'Panturrilha'] },
+                    { letra: 'C', titulo: 'Treino C - Pernas', grupos: ['Quadríceps', 'Glúteos'] },
+                    { letra: 'D', titulo: 'Treino D - Ombros', grupos: ['Ombros'] },
+                    { letra: 'E', titulo: 'Treino E - Braços', grupos: ['Bíceps', 'Tríceps', 'Posterior'] }
                 ];
             }
 
-            // Gerar exercícios iniciais vazios baseados nos blocos para o usuário preencher
             treinoAtualGerado.exercicios = [];
             blocosConfig.forEach(bloco => {
                 bloco.grupos.forEach(g => {
@@ -440,34 +397,26 @@
             renderizarFichaVisual(treinoAtualGerado);
         }
 
-        // RENDERIZAR CARDS POR LETRA COM AS 10 OPÇÕES DE SUGESTÃO PARA CADA GRUPO
         function renderizarBlocosPorLetra(blocosConfig) {
             const container = document.getElementById('treino-blocos-container');
             container.innerHTML = blocosConfig.map(bloco => `
-                <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-5 shadow-lg">
-                    <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
-                        <h3 class="text-md font-bold text-amber-400 flex items-center gap-2">
-                            <i class="fa-solid fa-dumbbell text-amber-400"></i> Card ${bloco.titulo}
-                        </h3>
-                        <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs px-2.5 py-1 rounded-lg font-bold">Treino ${bloco.letra}</span>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-2 border-b border-slate-900 pb-2">
+                        <h4 class="text-xs font-bold text-amber-400">Card ${bloco.titulo}</h4>
+                        <span class="bg-amber-500/10 text-amber-400 text-[10px] px-2 py-0.5 rounded font-bold">Treino ${bloco.letra}</span>
                     </div>
-                    <p class="text-xs text-slate-400 mb-3">Grupos sugeridos para este card. Clique em uma sugestão para preencher rapidamente um campo ou digite livremente na ficha abaixo.</p>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         ${bloco.grupos.map(grupo => {
                             const opcoes = acervoGlobalExercicios[grupo] || [];
                             return `
-                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                                            <i class="fa-solid fa-bullseye text-[10px]"></i> ${grupo} (10 Opções)
-                                        </span>
-                                        <button onclick="adicionarLinhaParaGrupo('${bloco.letra}', '${grupo}')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-1 rounded border border-amber-500/30 transition">
-                                            + Adicionar Campo para ${grupo}
-                                        </button>
+                                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800/60">
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <span class="text-[11px] font-bold text-slate-300">${grupo}</span>
+                                        <button onclick="adicionarLinhaParaGrupo('${bloco.letra}', '${grupo}')" class="text-[10px] text-amber-400 hover:underline">+ Campo</button>
                                     </div>
-                                    <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                    <div class="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
                                         ${opcoes.map(ex => `
-                                            <button onclick="preencherProximoCampoVazio('${bloco.letra}', '${grupo}', '${ex.replace(/'/g, "\\'")}')" class="text-[11px] bg-slate-900 hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 border border-slate-800 px-2.5 py-1 rounded-lg transition text-left">
+                                            <button onclick="preencherProximoCampoVazio('${bloco.letra}', '${grupo}', '${ex.replace(/'/g, "\\'")}')" class="text-[10px] bg-slate-950 hover:bg-amber-500/20 hover:text-amber-300 text-slate-400 border border-slate-800 px-2 py-0.5 rounded transition text-left">
                                                 ${ex}
                                             </button>
                                         `).join('')}
@@ -494,7 +443,6 @@
         }
 
         function preencherProximoCampoVazio(letra, grupo, nomeExercicio) {
-            // Tenta achar um campo vazio do mesmo treino/grupo, senão adiciona um novo
             let index = treinoAtualGerado.exercicios.findIndex(e => e.treinoLetra === letra && e.grupoMuscular === grupo && (!e.nome || e.nome.trim() === ''));
             if (index !== -1) {
                 treinoAtualGerado.exercicios[index].nome = nomeExercicio;
@@ -530,39 +478,36 @@
             renderizarFichaVisual(treinoAtualGerado);
         }
 
-        // RENDERIZAÇÃO DA FICHA OFICIAL CONSOLIDADA COM LIST DE AUTOCOMPLETE
         function renderizarFichaVisual(treino) {
             const preview = document.getElementById('ficha-preview');
             preview.innerHTML = `
-                <div>
-                    <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-user-athlete text-amber-400 mr-2"></i> ${treino.nome}</h3>
-                    <p class="text-xs text-slate-400 mt-1">
-                        <strong class="text-amber-400">Divisão:</strong> Treino ${treino.split} | 
-                        <strong class="text-amber-400">Objetivo:</strong> ${treino.objetivo} | 
-                        <strong class="text-amber-400">Nível:</strong> ${treino.nivel}
-                    </p>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-bold text-white"><i class="fa-solid fa-user-check text-amber-400 mr-1.5"></i> ${treino.nome}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Divisão: Treino ${treino.split} | Objetivo: ${treino.objetivo}</p>
+                    </div>
                 </div>
-                <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/50 mt-4">
+                <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900 mt-3">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-900 text-slate-400 border-b border-slate-800">
-                                <th class="py-2.5 px-3">Treino</th>
-                                <th class="py-2.5 px-3">Exercício (Autocomplete p/ Grupo)</th>
-                                <th class="py-2.5 px-3">Grupo</th>
-                                <th class="py-2.5 px-3">Séries</th>
-                                <th class="py-2.5 px-3">Reps / Tempo</th>
-                                <th class="py-2.5 px-3">Descanso</th>
-                                <th class="py-2.5 px-3 text-amber-400">Carga (kg)</th>
-                                <th class="py-2.5 px-3 text-center">Ações</th>
+                            <tr class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                <th class="py-2 px-3 w-12">Treino</th>
+                                <th class="py-2 px-3">Exercício (Autocompletar ou Digitar)</th>
+                                <th class="py-2 px-3 w-24">Grupo</th>
+                                <th class="py-2 px-3 w-16">Séries</th>
+                                <th class="py-2 px-3 w-20">Reps</th>
+                                <th class="py-2 px-3 w-16">Desc.</th>
+                                <th class="py-2 px-3 w-20 text-amber-400">Carga</th>
+                                <th class="py-2 px-3 w-12 text-center">X</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${treino.exercicios.length === 0 ? `
-                                <tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum exercício na ficha. Selecione nos blocos acima ou adicione manualmente.</td></tr>
+                                <tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum exercício cadastrado.</td></tr>
                             ` : treino.exercicios.map((e, idx) => `
-                                <tr class="border-b border-slate-900 hover:bg-slate-800/20">
-                                    <td class="py-3 px-3">
-                                        <select onchange="atualizarParametro(${idx}, 'treinoLetra', this.value)" class="bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+                                <tr class="border-b border-slate-900/60 hover:bg-slate-800/10">
+                                    <td class="py-2.5 px-3">
+                                        <select onchange="atualizarParametro(${idx}, 'treinoLetra', this.value)" class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-amber-400 font-bold focus:outline-none">
                                             <option value="A" ${e.treinoLetra === 'A' ? 'selected' : ''}>A</option>
                                             <option value="B" ${e.treinoLetra === 'B' ? 'selected' : ''}>B</option>
                                             <option value="C" ${e.treinoLetra === 'C' ? 'selected' : ''}>C</option>
@@ -570,24 +515,24 @@
                                             <option value="E" ${e.treinoLetra === 'E' ? 'selected' : ''}>E</option>
                                         </select>
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <input type="text" list="banco-exercicios-datalist" value="${e.nome || ''}" onchange="atualizarParametro(${idx}, 'nome', this.value)" placeholder="Digite ou selecione o exercício..." class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500 font-medium">
+                                    <td class="py-2.5 px-3">
+                                        <input type="text" list="banco-exercicios-datalist" value="${e.nome || ''}" onchange="atualizarParametro(${idx}, 'nome', this.value)" placeholder="Nome do exercício..." class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500">
                                     </td>
-                                    <td class="py-3 px-3 text-amber-400/80 font-semibold">${e.grupoMuscular || 'Geral'}</td>
-                                    <td class="py-3 px-3">
-                                        <input type="text" value="${e.series || ''}" onchange="atualizarParametro(${idx}, 'series', this.value)" class="w-12 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    <td class="py-2.5 px-3 text-slate-400 text-[11px]">${e.grupoMuscular || 'Geral'}</td>
+                                    <td class="py-2.5 px-3">
+                                        <input type="text" value="${e.series || ''}" onchange="atualizarParametro(${idx}, 'series', this.value)" class="w-12 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none">
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <input type="text" value="${e.reps || ''}" onchange="atualizarParametro(${idx}, 'reps', this.value)" class="w-20 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    <td class="py-2.5 px-3">
+                                        <input type="text" value="${e.reps || ''}" onchange="atualizarParametro(${idx}, 'reps', this.value)" class="w-16 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none">
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <input type="text" value="${e.descanso || ''}" onchange="atualizarParametro(${idx}, 'descanso', this.value)" class="w-16 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    <td class="py-2.5 px-3">
+                                        <input type="text" value="${e.descanso || ''}" onchange="atualizarParametro(${idx}, 'descanso', this.value)" class="w-14 bg-slate-950 border border-slate-800 rounded px-1 py-1 text-xs text-center text-white focus:outline-none">
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <input type="text" value="${e.carga || ''}" onchange="atualizarParametro(${idx}, 'carga', this.value)" placeholder="Ex: 20kg" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+                                    <td class="py-2.5 px-3">
+                                        <input type="text" value="${e.carga || ''}" onchange="atualizarParametro(${idx}, 'carga', this.value)" placeholder="kg" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none">
                                     </td>
-                                    <td class="py-3 px-3 text-center">
-                                        <button onclick="removerExercicioFicha(${idx})" class="text-rose-400 hover:text-rose-300 px-2 py-1 rounded" title="Remover"><i class="fa-solid fa-trash"></i></button>
+                                    <td class="py-2.5 px-3 text-center">
+                                        <button onclick="removerExercicioFicha(${idx})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -605,46 +550,38 @@
 
         async function salvarTreinoNoPerfil() {
             if (!currentUser) {
-                alert('Faça login para salvar o treino no perfil.');
+                alert('Faça login para salvar.');
                 abrirModalAuth();
                 return;
             }
             if (treinoAtualGerado.exercicios.length === 0) {
-                alert('Adicione pelo menos um item à ficha.');
+                alert('Adicione itens à ficha.');
                 return;
             }
 
             const editId = document.getElementById('edit-workout-id').value;
+            const payload = {
+                student_name: treinoAtualGerado.nome,
+                goal: treinoAtualGerado.objetivo,
+                level: treinoAtualGerado.nivel,
+                workout_data: treinoAtualGerado.exercicios
+            };
 
+            let error = null;
             if (editId) {
-                const { error } = await supabaseClient.from('user_workouts').update({
-                    student_name: treinoAtualGerado.nome,
-                    goal: treinoAtualGerado.objetivo,
-                    level: treinoAtualGerado.nivel,
-                    workout_data: treinoAtualGerado.exercicios
-                }).eq('id', editId);
-
-                if (!error) {
-                    document.getElementById('status-mensagem').textContent = 'Ficha atualizada com sucesso no perfil!';
-                    carregarTreinosSalvos();
-                } else {
-                    alert('Erro ao atualizar: ' + error.message);
-                }
+                const res = await supabaseClient.from('user_workouts').update(payload).eq('id', editId);
+                error = res.error;
             } else {
-                const { error } = await supabaseClient.from('user_workouts').insert({
-                    user_id: currentUser.id,
-                    student_name: treinoAtualGerado.nome,
-                    goal: treinoAtualGerado.objetivo,
-                    level: treinoAtualGerado.nivel,
-                    workout_data: treinoAtualGerado.exercicios
-                });
+                payload.user_id = currentUser.id;
+                const res = await supabaseClient.from('user_workouts').insert(payload);
+                error = res.error;
+            }
 
-                if (!error) {
-                    document.getElementById('status-mensagem').textContent = 'Ficha salva com sucesso no perfil!';
-                    carregarTreinosSalvos();
-                } else {
-                    alert('Erro ao salvar: ' + error.message);
-                }
+            if (!error) {
+                document.getElementById('status-mensagem').textContent = 'Ficha salva com sucesso!';
+                carregarTreinosSalvos();
+            } else {
+                alert('Erro: ' + error.message);
             }
         }
 
@@ -654,19 +591,18 @@
             const lista = document.getElementById('saved-workouts-list');
             
             if (!data || data.length === 0) {
-                lista.innerHTML = '<p class="text-xs text-slate-500">Nenhum treino salvo.</p>';
+                lista.innerHTML = '<p class="text-xs text-slate-500">Nenhuma ficha salva.</p>';
                 return;
             }
 
             lista.innerHTML = data.map(t => `
-                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                        <p class="font-bold text-white"><i class="fa-solid fa-file-lines text-amber-400 mr-1"></i> ${t.student_name}</p>
-                        <p class="text-slate-400 text-[10px]">${t.goal} • Nível: ${t.level || 'Geral'}</p>
+                        <p class="font-bold text-white">${t.student_name} <span class="text-[10px] text-slate-400">(${t.goal})</span></p>
                     </div>
-                    <div class="flex gap-1">
-                        <button onclick="carregarTreinoSalvo('${t.id}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1 rounded font-semibold">Editar</button>
-                        <button onclick="deletarTreino('${t.id}')" class="bg-rose-500/20 text-rose-400 px-2 py-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                    <div class="space-x-1">
+                        <button onclick="carregarTreinoSalvo('${t.id}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-1 rounded">Editar</button>
+                        <button onclick="deletarTreino('${t.id}')" class="text-rose-400 px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -685,22 +621,20 @@
             };
             document.getElementById('student-name').value = t.student_name;
             document.getElementById('workout-goal').value = t.goal || 'Hipertrofia';
-            document.getElementById('workout-level').value = t.level || 'Iniciante';
             document.getElementById('edit-workout-id').value = t.id;
             
-            // Simula clique de geração para recriar os cards dos blocos
             gerarTreinoComIA();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function deletarTreino(id) {
-            if (!confirm('Deseja excluir esta ficha?')) return;
+            if (!confirm('Excluir esta ficha?')) return;
             await supabaseClient.from('user_workouts').delete().eq('id', id);
             carregarTreinosSalvos();
         }
 
         function exportarPDF() {
-            html2pdf().from(document.getElementById('ficha-preview')).save('ficha-de-treino-oficial.pdf');
+            html2pdf().from(document.getElementById('ficha-preview')).save('ficha-de-treino.pdf');
         }
     </script>
 </body>
