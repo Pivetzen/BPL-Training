@@ -330,7 +330,7 @@
             const { data: users, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
-                .neq('id', currentUser.id); // Filtra para não exibir o próprio admin logado
+                .neq('id', currentUser.id);
         
             const tbody = document.getElementById('admin-users-table');
             if (error || !users) {
@@ -345,7 +345,7 @@
         
             tbody.innerHTML = users.map(u => `
                 <tr class="border-b border-slate-800/60 hover:bg-slate-800/40">
-                    <td class="py-2.5 px-3 font-mono text-[11px] text-slate-400">${u.id}</td>
+                    <td class="py-2.5 px-3 font-medium text-slate-200">${u.email || 'E-mail não disponível'}</td>
                     <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${u.status}</span></td>
                     <td class="py-2.5 px-3 text-slate-300">${u.role}</td>
                     <td class="py-2.5 px-3 text-right space-x-2">
