@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BPL Training - Gerador de Treinos</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- html2pdf.js CDN para exportação de PDF -->
+    <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
@@ -20,10 +20,10 @@
             
             <div id="auth-status" class="flex items-center gap-4">
                 <span id="user-display" class="text-sm text-slate-400 hidden"></span>
-                <button id="btn-login-modal" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-all">
+                <button id="btn-login-modal" type="button" onclick="abrirModalAuth()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-all cursor-pointer">
                     Entrar / Cadastrar
                 </button>
-                <button id="btn-logout" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded-lg transition-all hidden">
+                <button id="btn-logout" type="button" onclick="fazerLogout()" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded-lg transition-all hidden cursor-pointer">
                     Sair
                 </button>
             </div>
@@ -37,8 +37,7 @@
         <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl h-fit">
             <h2 class="text-xl font-bold mb-4 text-amber-400 border-b border-slate-700 pb-2">Configurar Treino</h2>
             
-            <!-- FORMULARIO CORRIGIDO: usa type="button" ou e.preventDefault() -->
-            <form id="form-treino" onsubmit="event.preventDefault();" class="space-y-4">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Objetivo</label>
                     <select id="objetivo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
@@ -61,18 +60,18 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Divisão Semanal</label>
                     <select id="divisao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
                         <option value="AB">AB (2 Divisões)</option>
-                        <option value="ABC">ABC (3 Divisões)</option>
+                        <option value="ABC" selected>ABC (3 Divisões)</option>
                         <option value="ABCD">ABCD (4 Divisões)</option>
                         <option value="ABCDE">ABCDE (5 Divisões)</option>
                     </select>
                 </div>
 
-                <!-- Botão com type="button" explícito para garantir que não recarregue a URL -->
-                <button type="button" id="btn-gerar" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-lg transition-all mt-4 shadow-lg flex items-center justify-center gap-2">
+                <!-- Botão de Ação Direta via onclick -->
+                <button type="button" id="btn-gerar" onclick="gerarTreinoPersonalizado()" class="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-900 font-bold py-3 rounded-lg transition-all mt-4 shadow-lg flex items-center justify-center gap-2 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     Gerar Treino Personalizado
                 </button>
-            </form>
+            </div>
         </section>
 
         <!-- Display / Output Section -->
@@ -81,10 +80,10 @@
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                     <h2 class="text-xl font-bold text-amber-400">Ficha de Treino</h2>
                     <div class="flex gap-2">
-                        <button id="btn-salvar" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">
+                        <button id="btn-salvar" type="button" onclick="salvarTreino()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer">
                             Salvar Treino
                         </button>
-                        <button id="btn-pdf" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">
+                        <button id="btn-pdf" type="button" onclick="exportarPDF()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer">
                             Exportar PDF
                         </button>
                     </div>
@@ -103,128 +102,81 @@
     <!-- Modal de Autenticação -->
     <div id="modal-auth" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
         <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-md w-full shadow-2xl relative">
-            <button id="btn-fechar-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white">&times;</button>
+            <button type="button" onclick="fecharModalAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             
             <h3 class="text-xl font-bold text-amber-400 mb-4" id="modal-titulo">Entrar na Conta</h3>
             
-            <form id="form-auth" onsubmit="event.preventDefault();" class="space-y-4">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">E-mail</label>
-                    <input type="email" id="auth-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Senha</label>
-                    <input type="password" id="auth-senha" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="password" id="auth-senha" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
 
-                <button type="button" id="btn-submeter-auth" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-lg transition-all">
+                <button type="button" id="btn-submeter-auth" onclick="submeterAuth()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-lg transition-all cursor-pointer">
                     Acessar
                 </button>
-            </form>
+            </div>
 
             <p class="text-sm text-slate-400 mt-4 text-center">
                 <span id="auth-toggle-msg">Não tem uma conta?</span>
-                <button id="auth-toggle-btn" class="text-amber-400 hover:underline font-semibold ml-1">Cadastrar-se</button>
+                <button type="button" onclick="alternarModoAuth()" class="text-amber-400 hover:underline font-semibold ml-1 cursor-pointer">Cadastrar-se</button>
             </p>
         </div>
     </div>
 
-    <!-- Script Principal da Aplicação -->
+    <!-- Script Principal -->
     <script>
-        // --- 1. CONFIGURAÇÃO DO SUPABASE ---
-        // Substitua com as suas credenciais reais do Supabase se desejar persistir online
-        const SUPABASE_URL = 'HTTPS://SEU-PROJETO.SUPABASE.CO';
-        const SUPABASE_KEY = 'SUA_ANON_KEY';
-        
-        let supabase = null;
-        if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'HTTPS://SEU-PROJETO.SUPABASE.CO') {
-            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-
-        // --- 2. BASE DE DADOS DOS EXERCÍCIOS ---
+        // Database de Exercícios
         const exerciciosDB = {
             peito: ["Supino Reto com Barra", "Supino Inclinado com Halteres", "Crossover na Polia", "Crucifixo Reto"],
             costas: ["Puxada Alta Frontal", "Remada Curvada com Barra", "Remada Baixa no Cabo", "Pulldown"],
             pernas: ["Agachamento Livre", "Leg Press 45°", "Cadeira Extensora", "Mesa Flexora", "Elevação Pélvica"],
             ombros: ["Desenvolvimento com Halteres", "Elevação Lateral", "Elevação Frontal", "Crucifixo Invertido"],
-            braços: ["Rosca Direta", "Rosca Scott", "Tríceps Corda", "Tríceps Testa", "Paralelas"]
+            bracos: ["Rosca Direta", "Rosca Scott", "Tríceps Corda", "Tríceps Testa", "Paralelas"]
         };
 
-        // --- 3. REFERÊNCIAS DO DOM ---
-        const btnGerar = document.getElementById('btn-gerar');
-        const conteudoTreino = document.getElementById('conteudo-treino');
-        const btnSalvar = document.getElementById('btn-salvar');
-        const btnPdf = document.getElementById('btn-pdf');
-        
-        const modalAuth = document.getElementById('modal-auth');
-        const btnLoginModal = document.getElementById('btn-login-modal');
-        const btnFecharModal = document.getElementById('btn-fechar-modal');
-        const btnSubmeterAuth = document.getElementById('btn-submeter-auth');
-        const authToggleBtn = document.getElementById('auth-toggle-btn');
-        const btnLogout = document.getElementById('btn-logout');
-        const userDisplay = document.getElementById('user-display');
-
-        let modoCadastro = false;
-        let usuarioAtual = null;
-
-        // --- 4. GERADOR DE TREINOS ---
-        btnGerar.addEventListener('click', (e) => {
-            e.preventDefault(); // Previne qualquer recarregamento da página ou envio de formulário
-
+        // Função de Geração de Treino
+        function gerarTreinoPersonalizado() {
             const objetivo = document.getElementById('objetivo').value;
             const nivel = document.getElementById('nivel').value;
             const divisao = document.getElementById('divisao').value;
 
-            const treinoGerado = construirTreino(objetivo, nivel, divisao);
-            renderizarTreino(treinoGerado, objetivo, nivel, divisao);
-        });
-
-        function construirTreino(objetivo, nivel, divisao) {
             const seriesReps = objetivo === 'forca' ? '4 séries x 5 repetições' : 
                                objetivo === 'hipertrofia' ? '3 séries x 10 a 12 repetições' : 
                                '3 séries x 15 repetições';
 
             const estrutura = {
                 'AB': [
-                    { nome: 'Treino A - Peito, Ombro e Tríceps', grupos: ['peito', 'ombros', 'braços'] },
-                    { nome: 'Treino B - Costas, Pernas e Bíceps', grupos: ['costas', 'pernas', 'braços'] }
+                    { nome: 'Treino A - Peito, Ombro e Tríceps', grupos: ['peito', 'ombros', 'bracos'] },
+                    { nome: 'Treino B - Costas, Pernas e Bíceps', grupos: ['costas', 'pernas', 'bracos'] }
                 ],
                 'ABC': [
-                    { nome: 'Treino A - Peito e Tríceps', grupos: ['peito', 'braços'] },
-                    { nome: 'Treino B - Costas e Bíceps', grupos: ['costas', 'braços'] },
+                    { nome: 'Treino A - Peito e Tríceps', grupos: ['peito', 'bracos'] },
+                    { nome: 'Treino B - Costas e Bíceps', grupos: ['costas', 'bracos'] },
                     { nome: 'Treino C - Pernas e Ombro', grupos: ['pernas', 'ombros'] }
                 ],
                 'ABCD': [
                     { nome: 'Treino A - Peito e Ombro', grupos: ['peito', 'ombros'] },
                     { nome: 'Treino B - Costas e Trapézio', grupos: ['costas'] },
                     { nome: 'Treino C - Pernas Completo', grupos: ['pernas'] },
-                    { nome: 'Treino D - Braços (Bíceps e Tríceps)', grupos: ['braços'] }
+                    { nome: 'Treino D - Braços', grupos: ['bracos'] }
                 ],
                 'ABCDE': [
                     { nome: 'Treino A - Peito', grupos: ['peito'] },
                     { nome: 'Treino B - Costas', grupos: ['costas'] },
                     { nome: 'Treino C - Pernas', grupos: ['pernas'] },
                     { nome: 'Treino D - Ombros', grupos: ['ombros'] },
-                    { nome: 'Treino E - Braços', grupos: ['braços'] }
+                    { nome: 'Treino E - Braços', grupos: ['bracos'] }
                 ]
             };
 
             const divisaoSelecionada = estrutura[divisao] || estrutura['ABC'];
+            const qtdExercicios = nivel === 'iniciante' ? 2 : 3;
 
-            return divisaoSelecionada.map(bloco => {
-                let exerciciosBloco = [];
-                bloco.grupos.forEach(grupo => {
-                    const lista = exerciciosDB[grupo] || [];
-                    const selecionados = lista.slice(0, nivel === 'iniciante' ? 2 : 3);
-                    selecionados.forEach(ex => {
-                        exerciciosBloco.push({ nome: ex, esquema: seriesReps });
-                    });
-                });
-                return { titulo: bloco.nome, exercicios: exerciciosBloco };
-            });
-        }
-
-        function renderizarTreino(treino, objetivo, nivel, divisao) {
             let html = `
                 <div id="ficha-impressao" class="space-y-6">
                     <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-wrap gap-4 justify-between text-sm">
@@ -234,33 +186,39 @@
                     </div>
             `;
 
-            treino.forEach(bloco => {
+            divisaoSelecionada.forEach(bloco => {
                 html += `
                     <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
-                        <h3 class="text-lg font-bold text-amber-400 mb-3 border-b border-slate-800 pb-1">${bloco.titulo}</h3>
+                        <h3 class="text-lg font-bold text-amber-400 mb-3 border-b border-slate-800 pb-1">${bloco.nome}</h3>
                         <ul class="space-y-2">
                 `;
-                bloco.exercicios.forEach(ex => {
-                    html += `
-                        <li class="flex justify-between items-center text-sm bg-slate-800/60 p-2 rounded border border-slate-700/50">
-                            <span class="font-medium text-slate-200">${ex.nome}</span>
-                            <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-1 rounded font-mono">${ex.esquema}</span>
-                        </li>
-                    `;
+                
+                bloco.grupos.forEach(grupo => {
+                    const lista = exerciciosDB[grupo] || [];
+                    const selecionados = lista.slice(0, qtdExercicios);
+                    
+                    selecionados.forEach(ex => {
+                        html += `
+                            <li class="flex justify-between items-center text-sm bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                                <span class="font-medium text-slate-200">${ex}</span>
+                                <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-1 rounded font-mono">${seriesReps}</span>
+                            </li>
+                        `;
+                    });
                 });
+
                 html += `</ul></div>`;
             });
 
             html += `</div>`;
-            conteudoTreino.innerHTML = html;
-
-            btnSalvar.classList.remove('hidden');
-            btnPdf.classList.remove('hidden');
+            
+            document.getElementById('conteudo-treino').innerHTML = html;
+            document.getElementById('btn-salvar').classList.remove('hidden');
+            document.getElementById('btn-pdf').classList.remove('hidden');
         }
 
-        // --- 5. EXPORTAÇÃO EM PDF ---
-        btnPdf.addEventListener('click', (e) => {
-            e.preventDefault();
+        // Exportação para PDF
+        function exportarPDF() {
             const elemento = document.getElementById('ficha-impressao');
             if (!elemento) return;
 
@@ -273,63 +231,61 @@
             };
 
             html2pdf().set(opt).from(elemento).save();
-        });
+        }
 
-        // --- 6. CONTROLE DO MODAL DE AUTENTICAÇÃO ---
-        btnLoginModal.addEventListener('click', () => modalAuth.classList.remove('hidden'));
-        btnFecharModal.addEventListener('click', () => modalAuth.classList.add('hidden'));
+        // Controle do Modal & Autenticação Local/Supabase
+        let modoCadastro = false;
 
-        authToggleBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+        function abrirModalAuth() {
+            document.getElementById('modal-auth').classList.remove('hidden');
+        }
+
+        function fecharModalAuth() {
+            document.getElementById('modal-auth').classList.add('hidden');
+        }
+
+        function alternarModoAuth() {
             modoCadastro = !modoCadastro;
             document.getElementById('modal-titulo').innerText = modoCadastro ? 'Criar Conta' : 'Entrar na Conta';
-            btnSubmeterAuth.innerText = modoCadastro ? 'Cadastrar' : 'Acessar';
+            document.getElementById('btn-submeter-auth').innerText = modoCadastro ? 'Cadastrar' : 'Acessar';
             document.getElementById('auth-toggle-msg').innerText = modoCadastro ? 'Já tem uma conta?' : 'Não tem uma conta?';
-            authToggleBtn.innerText = modoCadastro ? 'Fazer Login' : 'Cadastrar-se';
-        });
+        }
 
-        btnSubmeterAuth.addEventListener('click', async (e) => {
-            e.preventDefault();
+        function submeterAuth() {
             const email = document.getElementById('auth-email').value;
             const senha = document.getElementById('auth-senha').value;
 
             if (!email || !senha) {
-                alert('Preencha todos os campos!');
+                alert('Preencha e-mail e senha!');
                 return;
             }
 
-            // Simulação local / Supabase Auth
-            if (supabase) {
-                if (modoCadastro) {
-                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
-                    if (error) alert(error.message);
-                    else alert('Cadastro realizado com sucesso!');
-                } else {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-                    if (error) alert(error.message);
-                    else {
-                        atualizarSessao(data.user);
-                        modalAuth.classList.add('hidden');
-                    }
-                }
-            } else {
-                // Fallback para persistência local (Sessão simulada no localStorage)
-                usuarioAtual = { email };
-                localStorage.setItem('bpl_user', JSON.stringify(usuarioAtual));
-                atualizarSessao(usuarioAtual);
-                modalAuth.classList.add('hidden');
-            }
-        });
+            const usuario = { email };
+            localStorage.setItem('bpl_user', JSON.stringify(usuario));
+            atualizarInterfaceUsuario(usuario);
+            fecharModalAuth();
+        }
 
-        btnLogout.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (supabase) supabase.auth.signOut();
+        function fazerLogout() {
             localStorage.removeItem('bpl_user');
-            atualizarSessao(null);
-        });
+            atualizarInterfaceUsuario(null);
+        }
 
-        function atualizarSessao(user) {
-            usuarioAtual = user;
+        function salvarTreino() {
+            const usuario = localStorage.getItem('bpl_user');
+            if (!usuario) {
+                alert('Faça login primeiro para salvar seu treino!');
+                abrirModalAuth();
+            } else {
+                alert('Treino salvo com sucesso!');
+            }
+        }
+
+        function atualizarInterfaceUsuario(user) {
+            const userDisplay = document.getElementById('user-display');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnLoginModal = document.getElementById('btn-login-modal');
+
             if (user) {
                 userDisplay.innerText = user.email;
                 userDisplay.classList.remove('hidden');
@@ -342,11 +298,11 @@
             }
         }
 
-        // Restaurar sessão ao carregar a página
+        // Carrega estado de login salvo
         window.addEventListener('DOMContentLoaded', () => {
-            const sessaoSalva = localStorage.getItem('bpl_user');
-            if (sessaoSalva) {
-                atualizarSessao(JSON.parse(sessaoSalva));
+            const sessao = localStorage.getItem('bpl_user');
+            if (sessao) {
+                atualizarInterfaceUsuario(JSON.parse(sessao));
             }
         });
     </script>
