@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPL Training - Gerador com IA</title>
+    <title>BPL Training - Personal Trainer AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -15,7 +15,7 @@
     <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
             <div class="bg-amber-500 text-slate-950 font-black px-3 py-1.5 rounded-lg text-lg tracking-wider">BPL</div>
-            <h1 class="text-xl font-bold tracking-tight text-white">Training AI</h1>
+            <h1 class="text-xl font-bold tracking-tight text-white">Training AI <span class="text-xs text-amber-400 font-normal ml-2">| Seu Personal Trainer Digital</span></h1>
         </div>
         <div id="user-menu" class="flex items-center space-x-4">
             <span id="user-info" class="text-sm text-slate-400">Carregando...</span>
@@ -32,14 +32,14 @@
         <section class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
             <div>
                 <h2 class="text-lg font-semibold mb-4 text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-robot"></i> Gerador Inteligente (IA)
+                    <i class="fa-solid fa-dumbbell"></i> Avaliação e Prescrição (IA)
                 </h2>
                 <input type="hidden" id="edit-workout-id" value="">
                 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Aluno / Atleta *</label>
-                        <input type="text" id="student-name" placeholder="Ex: Mateus Silva" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <input type="text" id="student-name" placeholder="Ex: Matheus Maia" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Objetivo *</label>
@@ -63,28 +63,28 @@
             </div>
 
             <button onclick="gerarTreinoComIA()" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btn-gerar-text">Consultar IA & Sugerir Exercícios</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btn-gerar-text">Montar Treino Personalizado</span>
             </button>
 
             <!-- TREINOS SALVOS -->
             <div class="mt-8 border-t border-slate-800 pt-4">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-semibold text-slate-300">Treinos Salvos</h3>
+                    <h3 class="text-sm font-semibold text-slate-300">Treinos Salvos & Editáveis</h3>
                     <button onclick="carregarTreinosSalvos()" class="text-xs text-amber-400 hover:underline">Atualizar</button>
                 </div>
                 <div id="saved-workouts-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-500">Faça login para ver e gerenciar seus treinos.</p>
+                    <p class="text-xs text-slate-500">Faça login para gerenciar suas fichas salvas.</p>
                 </div>
             </div>
         </section>
 
-        <!-- PAINEL DIREITO: SELEÇÃO DE EXERCÍCIOS E FICHA -->
+        <!-- PAINEL DIREITO: SUGESTÕES E FICHA -->
         <section class="lg:col-span-8 flex flex-col gap-6">
             
-            <!-- PAINEL ADMINISTRATIVO -->
+            <!-- PAINEL ADMIN -->
             <div id="admin-panel" class="hidden bg-slate-900 border border-amber-500/40 rounded-2xl p-5 shadow-lg">
                 <h3 class="text-md font-bold text-amber-400 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved"></i> Painel Administrativo - Aprovação de Usuários
+                    <i class="fa-solid fa-shield-halved"></i> Painel Administrativo
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
@@ -101,17 +101,17 @@
                 </div>
             </div>
 
-            <!-- MODAL / ÁREA DE SUGESTÕES DA IA COM GRUPO MUSCULAR -->
+            <!-- SUGESTÕES DA IA COM GRUPO MUSCULAR -->
             <div id="ai-suggestions-container" class="hidden bg-slate-900 border border-amber-500/50 rounded-2xl p-5 shadow-lg">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-md font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-brain"></i> Sugestões da IA (Selecione os exercícios com indicação de grupo muscular)
+                        <i class="fa-solid fa-brain"></i> Sugestões do Personal (Selecione para incluir na ficha)
                     </h3>
-                    <span id="ai-loading" class="text-xs text-amber-400 animate-pulse hidden">Consultando IA...</span>
+                    <span id="ai-loading" class="text-xs text-amber-400 animate-pulse hidden">Analisando biomecânica...</span>
                 </div>
                 <div id="ai-exercises-checklist" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2 mb-4"></div>
                 <button onclick="adicionarExerciciosSelecionados()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
-                    Adicionar Selecionados à Ficha
+                    Adicionar Selecionados à Ficha Oficial
                 </button>
             </div>
 
@@ -120,10 +120,10 @@
                 <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-file-lines text-amber-400"></i> Ficha de Treino Oficial
+                            <i class="fa-solid fa-clipboard-user text-amber-400"></i> Ficha de Treino Oficial
                         </h2>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 flex-wrap">
                         <button onclick="adicionarExercicioManual()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
                             <i class="fa-solid fa-plus"></i> Novo Exercício
                         </button>
@@ -131,7 +131,7 @@
                             <i class="fa-solid fa-file-pdf"></i> Exportar PDF
                         </button>
                         <button onclick="salvarTreinoNoPerfil()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Salvar / Atualizar Perfil
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Salvar / Atualizar Ficha
                         </button>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
                 <!-- CONTEÚDO DA FICHA -->
                 <div id="ficha-preview" class="space-y-6 flex-1 bg-slate-950 p-6 rounded-xl border border-slate-800/60">
                     <div class="text-center py-12 text-slate-500">
-                        Preencha os dados à esquerda e clique em "Consultar IA & Sugerir Exercícios".
+                        Preencha o nome do aluno, selecione o objetivo e o nível, depois clique em "Montar Treino Personalizado".
                     </div>
                 </div>
 
@@ -148,13 +148,13 @@
         </section>
     </main>
 
-    <!-- MODAL DE AUTENTICAÇÃO -->
+    <!-- MODAL AUTH -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
             <button onclick="fecharModalAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-            <h3 class="text-lg font-bold text-amber-400 mb-4">Autenticação</h3>
+            <h3 class="text-lg font-bold text-amber-400 mb-4">Área do Personal / Aluno</h3>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">E-mail</label>
@@ -173,7 +173,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT DO SISTEMA -->
     <script>
         const SUPABASE_URL = 'https://oayjuidwgistebxuwyos.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9heWp1aWR3Z2lzdGVieHV3eW9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4ODMyMTcsImV4cCI6MjEwNDQ1OTIxN30.UJPZRCoDvRzHec6qL0EtYCOLe_gwgcZ7uBeXme4K2Tc';
@@ -186,7 +185,7 @@
             nome: 'Atleta',
             objetivo: 'Hipertrofia',
             nivel: 'Iniciante',
-            exercicios: [] // {nome, grupoMuscular, series, reps, descanso, carga}
+            exercicios: []
         };
 
         let exerciciosSugeridosIA = [];
@@ -251,7 +250,7 @@
             document.getElementById('auth-btn').textContent = 'Entrar / Cadastrar';
             document.getElementById('auth-btn').onclick = abrirModalAuth;
             document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('saved-workouts-list').innerHTML = '<p class="text-xs text-slate-500">Faça login para ver e gerenciar seus treinos.</p>';
+            document.getElementById('saved-workouts-list').innerHTML = '<p class="text-xs text-slate-500">Faça login para gerenciar suas fichas salvas.</p>';
         }
 
         function abrirModalAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
@@ -282,7 +281,7 @@
             const { data: users } = await supabaseClient.from('profiles').select('*').neq('id', currentUser.id);
             const tbody = document.getElementById('admin-users-table');
             if (!users || users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-2 text-slate-500">Nenhum usuário.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-2 text-slate-500">Nenhum usuário cadastrado.</td></tr>`;
                 return;
             }
             tbody.innerHTML = users.map(u => `
@@ -303,7 +302,7 @@
             carregarUsuariosAdmin();
         }
 
-        // INTEGRAÇÃO COM IA GERANDO GRUPO MUSCULAR
+        // MOTOR DE IA COM ENGENHARIA DE PROMPT PERSONAL TRAINER PROFISSIONAL
         async function gerarTreinoComIA() {
             const nome = document.getElementById('student-name').value || 'Atleta';
             const objetivo = document.getElementById('workout-goal').value;
@@ -316,7 +315,13 @@
             document.getElementById('ai-loading').classList.remove('hidden');
             document.getElementById('ai-suggestions-container').classList.remove('hidden');
 
-            const prompt = `Gere uma lista com 8 sugestões de exercícios para o objetivo: "${objetivo}" e nível: "${nivel}". Retorne APENAS um array JSON válido onde cada objeto possui as chaves exatas: "nome", "grupoMuscular" (ex: Peitoral, Quadríceps, Costas, Aeróbico, etc), "series" (ex: 3), "reps" (ex: "10-12"), "descanso" (ex: "60s"). Sem marcação markdown, apenas o array JSON puro.`;
+            const prompt = `Aja estritamente como um Personal Trainer experiente e especialista em cinesiologia e fisiologia do exercício. Crie um treino diversificado e altamente técnico com 6 a 8 opções de exercícios adaptadas especificamente para o objetivo: "${objetivo}" e nível: "${nivel}".
+            Retorne APENAS um array JSON puro, sem blocos markdown, onde cada objeto possui obrigatoriamente as chaves:
+            - "nome": Nome correto do exercício na musculação/academia.
+            - "grupoMuscular": Grupo muscular principal focado (ex: Peitoral, Quadríceps, Costas, Abdômen, Cardiovasculares, etc).
+            - "series": Número sugerido de séries (ex: "3" ou "4").
+            - "reps": Número sugerido de repetições ou tempo (ex: "10-12" ou "30 min").
+            - "descanso": Tempo de intervalo sugerido (ex: "60s" ou "90s").`;
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=SUA_CHAVE_API_GEMINI`, {
@@ -327,7 +332,7 @@
 
                 let exercicios = [];
                 if (!response.ok) {
-                    exercicios = gerarFallbackPorObjetivo(objetivo);
+                    exercicios = gerarOpcoesFallbackDinamicas(objetivo, nivel);
                 } else {
                     const data = await response.json();
                     const textoResposta = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -337,7 +342,7 @@
                 exerciciosSugeridosIA = exercicios;
                 renderizarChecklistIA(exercicios);
             } catch (err) {
-                const exerciciosFallback = gerarFallbackPorObjetivo(objetivo);
+                const exerciciosFallback = gerarOpcoesFallbackDinamicas(objetivo, nivel);
                 exerciciosSugeridosIA = exerciciosFallback;
                 renderizarChecklistIA(exerciciosFallback);
             } finally {
@@ -345,27 +350,57 @@
             }
         }
 
-        function gerarFallbackPorObjetivo(objetivo) {
+        // BANCO DE ALTERNATIVAS DINÂMICAS POR OBJETIVO E NÍVEL (GARANTE SEMPRE VARIAÇÃO PROFISSIONAL)
+        function gerarOpcoesFallbackDinamicas(objetivo, nivel) {
+            const variador = nivel === 'Avançado' ? 'Técnica avançada' : nivel === 'Intermediário' ? 'Carga moderada' : 'Execução controlada';
+            
             if (objetivo === 'Apenas Aeróbico') {
                 return [
-                    { nome: 'Esteira Ergométrica', grupoMuscular: 'Cardiovasculares / Pernas', series: 1, reps: '30 min', descanso: '0s' },
-                    { nome: 'Bicicleta Ergométrica', grupoMuscular: 'Cardiovasculares / Pernas', series: 1, reps: '25 min', descanso: '0s' },
-                    { nome: 'Elíptico', grupoMuscular: 'Cardiovasculares / Corpo Inteiro', series: 1, reps: '20 min', descanso: '0s' },
-                    { nome: 'Pular Corda', grupoMuscular: 'Cardiovasculares / Panturrilha', series: 4, reps: '2 min', descanso: '60s' }
+                    { nome: 'Esteira Contínua (Inclinada)', grupoMuscular: 'Cardiovasculares / Membros Inferiores', series: 1, reps: '35 min', descanso: '0s' },
+                    { nome: 'Bicicleta Ergométrica (Intervalada HIIT)', grupoMuscular: 'Cardiovasculares / Quadríceps', series: 8, reps: '1 min forte / 1 min leve', descanso: '0s' },
+                    { nome: 'Elíptico / Movement', grupoMuscular: 'Cardiovasculares / Corpo Inteiro', series: 1, reps: '25 min', descanso: '0s' },
+                    { nome: 'Pular Corda (Double Unders ou Simples)', grupoMuscular: 'Cardiovasculares / Panturrilha', series: 5, reps: '3 min', descanso: '60s' },
+                    { nome: 'Escada Ergométrica (Stairmaster)', grupoMuscular: 'Glúteos / Condicionamento', series: 1, reps: '20 min', descanso: '0s' }
                 ];
             }
             if (objetivo === 'Fisioterapia') {
                 return [
-                    { nome: 'Mobilidade de Joelho Sentado', grupoMuscular: 'Articulação / Joelhos', series: 3, reps: '15', descanso: '45s' },
-                    { nome: 'Ponte para Glúteos', grupoMuscular: 'Glúteos / Lombar', series: 3, reps: '12', descanso: '60s' },
-                    { nome: 'Abdução de Quadril deitado', grupoMuscular: 'Quadril / Abdutores', series: 3, reps: '12', descanso: '45s' }
+                    { nome: 'Mobilidade Ativa de Tornozelo', grupoMuscular: 'Articulação / Tornozelos', series: 3, reps: '15 reps cada', descanso: '30s' },
+                    { nome: 'Ponte Unilateral para Glúteos', grupoMuscular: 'Glúteos / Estabilizadores Lombar', series: 3, reps: '12', descanso: '45s' },
+                    { nome: 'Prancha Isométrica Ventral', grupoMuscular: 'Core / Abdômen Profundo', series: 3, reps: '30s - 45s', descanso: '60s' },
+                    { nome: 'Abdução de Quadril em decúbito lateral', grupoMuscular: 'Quadril / Abdutores', series: 3, reps: '15', descanso: '45s' },
+                    { nome: 'Extensão de joelho controlada (Cadeira Extensora leve)', grupoMuscular: 'Quadríceps / Joelho', series: 3, reps: '12 - 15', descanso: '60s' }
                 ];
             }
+            if (objetivo === 'Emagrecimento') {
+                return [
+                    { nome: 'Agachamento Livre com Salto (Jump Squat)', grupoMuscular: 'Pernas / Explosão', series: 4, reps: '12', descanso: '45s' },
+                    { nome: 'Burpees Dinâmicos', grupoMuscular: 'Corpo Inteiro / Metabólico', series: 4, reps: '10', descanso: '60s' },
+                    { nome: 'Remada Curvada com Halteres', grupoMuscular: 'Costas / Core', series: 4, reps: '12 - 15', descanso: '45s' },
+                    { nome: 'Thruster com Halteres', grupoMuscular: 'Ombros / Pernas', series: 4, reps: '12', descanso: '60s' },
+                    { nome: 'Flexão de Braço no Solo', grupoMuscular: 'Peitoral / Tríceps', series: 3, reps: 'Máximo', descanso: '45s' },
+                    { nome: 'Mountain Climbers', grupoMuscular: 'Core / Cardio', series: 4, reps: '40 seg', descanso: '30s' }
+                ];
+            }
+            if (objetivo === 'Condicionamento') {
+                return [
+                    { nome: 'Levantamento Terra (Deadlift)', grupoMuscular: 'Cadeia Posterior / Costas', series: 4, reps: '8 - 10', descanso: '90s' },
+                    { nome: 'Desenvolvimento Militar com Barra', grupoMuscular: 'Ombros / Core', series: 4, reps: '10', descanso: '60s' },
+                    { nome: 'Clean and Press (Arremesso)', grupoMuscular: 'Corpo Inteiro / Potência', series: 4, reps: '8', descanso: '90s' },
+                    { nome: 'Barra Fixa Pronada', grupoMuscular: 'Costas / Bíceps', series: 4, reps: 'Máximo', descanso: '60s' },
+                    { nome: 'Afundo com Halteres (Walking Lunges)', grupoMuscular: 'Quadríceps / Glúteos', series: 3, reps: '12 passos', descanso: '60s' }
+                ];
+            }
+            // Padrão Hipertrofia com variação rica
             return [
-                { nome: 'Supino Reto com Barra', grupoMuscular: 'Peitoral', series: 4, reps: '8 - 10', descanso: '60s' },
-                { nome: 'Puxada Alta na Polia', grupoMuscular: 'Costas', series: 4, reps: '10 - 12', descanso: '60s' },
-                { nome: 'Agachamento Livre', grupoMuscular: 'Quadríceps / Pernas', series: 4, reps: '8 - 10', descanso: '90s' },
-                { nome: 'Desenvolvimento com Halteres', grupoMuscular: 'Ombros', series: 3, reps: '10', descanso: '60s' }
+                { nome: 'Supino Reto com Barra', grupoMuscular: 'Peitoral Maior', series: 4, reps: '8 - 10', descanso: '90s' },
+                { nome: 'Supino Inclinado com Halteres', grupoMuscular: 'Peitoral Superior / Deltóide Ant.', series: 4, reps: '10 - 12', descanso: '60s' },
+                { nome: 'Puxada Alta na Polia (Pegada Pronada)', grupoMuscular: 'Dorsal / Costas', series: 4, reps: '10 - 12', descanso: '60s' },
+                { nome: 'Remada Baixa articulada', grupoMuscular: 'Miolo de Costas / Rombóides', series: 4, reps: '10 - 12', descanso: '60s' },
+                { nome: 'Desenvolvimento com Halteres sentado', grupoMuscular: 'Deltóides (Ombros)', series: 4, reps: '10', descanso: '60s' },
+                { nome: 'Elevação Lateral na Polia', grupoMuscular: 'Deltóide Lateral', series: 4, reps: '12 - 15', descanso: '45s' },
+                { nome: 'Rosca Direta com Barra W', grupoMuscular: 'Bíceps Braquial', series: 3, reps: '10 - 12', descanso: '45s' },
+                { nome: 'Tríceps Testa na Polia com Corda', grupoMuscular: 'Tríceps', series: 3, reps: '12', descanso: '45s' }
             ];
         }
 
@@ -376,8 +411,8 @@
                     <input type="checkbox" value="${index}" class="ai-ex-checkbox accent-amber-500 rounded" checked>
                     <div class="flex-1">
                         <span class="font-bold text-white">${ex.nome}</span>
-                        <span class="text-amber-400 text-[10px] block">Grupo: ${ex.grupoMuscular}</span>
-                        <span class="text-slate-400 block text-[10px]">${ex.series} séries • ${ex.reps} reps • Descanso: ${ex.descanso}</span>
+                        <span class="text-amber-400 text-[10px] block"><i class="fa-solid fa-bullseye"></i> Grupo: ${ex.grupoMuscular}</span>
+                        <span class="text-slate-400 block text-[10px]">Séries: ${ex.series} • Reps: ${ex.reps} • Descanso: ${ex.descanso}</span>
                     </div>
                 </label>
             `).join('');
@@ -407,7 +442,7 @@
             if (!nome) return;
             const grupoMuscular = prompt("Grupo muscular principal:") || 'Geral';
             const series = prompt("Número de séries (ex: 3):") || '3';
-            const reps = prompt("Repetições (ex: 10):") || '10';
+            const reps = prompt("Repetições / Tempo (ex: 10):") || '10';
             const descanso = prompt("Tempo de descanso (ex: 60s):") || '60s';
 
             treinoAtualGerado.exercicios.push({
@@ -430,7 +465,7 @@
             const preview = document.getElementById('ficha-preview');
             preview.innerHTML = `
                 <div>
-                    <h3 class="text-xl font-bold text-white">${treino.nome}</h3>
+                    <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-user-athlete text-amber-400 mr-2"></i> ${treino.nome}</h3>
                     <p class="text-xs text-slate-400 mt-1">
                         <strong class="text-amber-400">Objetivo:</strong> ${treino.objetivo} | 
                         <strong class="text-amber-400">Nível:</strong> ${treino.nivel}
@@ -443,7 +478,7 @@
                                 <th class="py-2.5 px-3">Exercício</th>
                                 <th class="py-2.5 px-3">Grupo Muscular</th>
                                 <th class="py-2.5 px-3">Séries</th>
-                                <th class="py-2.5 px-3">Reps</th>
+                                <th class="py-2.5 px-3">Reps / Tempo</th>
                                 <th class="py-2.5 px-3">Descanso</th>
                                 <th class="py-2.5 px-3 text-amber-400">Carga (kg)</th>
                                 <th class="py-2.5 px-3 text-center">Ações</th>
@@ -451,16 +486,22 @@
                         </thead>
                         <tbody>
                             ${treino.exercicios.length === 0 ? `
-                                <tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum exercício na ficha. Selecione acima ou adicione manualmente.</td></tr>
+                                <tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum exercício na ficha. Selecione nas sugestões acima ou adicione manualmente.</td></tr>
                             ` : treino.exercicios.map((e, idx) => `
                                 <tr class="border-b border-slate-900 hover:bg-slate-800/20">
                                     <td class="py-3 px-3 text-slate-200 font-medium">${e.nome}</td>
                                     <td class="py-3 px-3 text-amber-400/80">${e.grupoMuscular || 'Geral'}</td>
-                                    <td class="py-3 px-3 text-slate-400">${e.series}</td>
-                                    <td class="py-3 px-3 text-slate-400">${e.reps}</td>
-                                    <td class="py-3 px-3 text-slate-400">${e.descanso}</td>
                                     <td class="py-3 px-3">
-                                        <input type="text" value="${e.carga || ''}" onchange="atualizarCarga(${idx}, this.value)" placeholder="Ex: 20kg" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+                                        <input type="text" value="${e.series || ''}" onchange="atualizarParametro(${idx}, 'series', this.value)" class="w-12 bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <input type="text" value="${e.reps || ''}" onchange="atualizarParametro(${idx}, 'reps', this.value)" class="w-20 bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <input type="text" value="${e.descanso || ''}" onchange="atualizarParametro(${idx}, 'descanso', this.value)" class="w-16 bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <input type="text" value="${e.carga || ''}" onchange="atualizarParametro(${idx}, 'carga', this.value)" placeholder="Ex: 20kg" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
                                     </td>
                                     <td class="py-3 px-3 text-center">
                                         <button onclick="removerExercicioFicha(${idx})" class="text-rose-400 hover:text-rose-300 px-2 py-1 rounded" title="Remover exercício"><i class="fa-solid fa-trash"></i></button>
@@ -473,20 +514,20 @@
             `;
         }
 
-        function atualizarCarga(index, valor) {
+        function atualizarParametro(index, campo, valor) {
             if (treinoAtualGerado.exercicios[index]) {
-                treinoAtualGerado.exercicios[index].carga = valor;
+                treinoAtualGerado.exercicios[index][campo] = valor;
             }
         }
 
         async function salvarTreinoNoPerfil() {
             if (!currentUser) {
-                alert('Faça login para salvar o treino.');
+                alert('Faça login para salvar o treino no seu perfil.');
                 abrirModalAuth();
                 return;
             }
             if (treinoAtualGerado.exercicios.length === 0) {
-                alert('Adicione pelo menos um exercício à ficha.');
+                alert('Adicione pelo menos um exercício à ficha antes de salvar.');
                 return;
             }
 
@@ -501,7 +542,7 @@
                 }).eq('id', editId);
 
                 if (!error) {
-                    document.getElementById('status-mensagem').textContent = 'Treino atualizado com sucesso no perfil!';
+                    document.getElementById('status-mensagem').textContent = 'Ficha de treino atualizada com sucesso no perfil!';
                     carregarTreinosSalvos();
                 } else {
                     alert('Erro ao atualizar: ' + error.message);
@@ -516,7 +557,7 @@
                 });
 
                 if (!error) {
-                    document.getElementById('status-mensagem').textContent = 'Treino salvo com sucesso no perfil!';
+                    document.getElementById('status-mensagem').textContent = 'Ficha de treino salva com sucesso no perfil!';
                     carregarTreinosSalvos();
                 } else {
                     alert('Erro ao salvar: ' + error.message);
@@ -530,19 +571,19 @@
             const lista = document.getElementById('saved-workouts-list');
             
             if (!data || data.length === 0) {
-                lista.innerHTML = '<p class="text-xs text-slate-500">Nenhum treino salvo.</p>';
+                lista.innerHTML = '<p class="text-xs text-slate-500">Nenhum treino salvo até o momento.</p>';
                 return;
             }
 
             lista.innerHTML = data.map(t => `
                 <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                        <p class="font-bold text-white">${t.student_name}</p>
-                        <p class="text-slate-400 text-[10px]">${t.goal} • ${t.level || 'Geral'}</p>
+                        <p class="font-bold text-white"><i class="fa-solid fa-file-lines text-amber-400 mr-1"></i> ${t.student_name}</p>
+                        <p class="text-slate-400 text-[10px]">${t.goal} • Nível: ${t.level || 'Geral'}</p>
                     </div>
                     <div class="flex gap-1">
-                        <button onclick="carregarTreinoSalvo('${t.id}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-1 rounded font-semibold">Editar</button>
-                        <button onclick="deletarTreino('${t.id}')" class="bg-rose-500/20 text-rose-400 px-2 py-1 rounded">X</button>
+                        <button onclick="carregarTreinoSalvo('${t.id}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1 rounded font-semibold">Editar</button>
+                        <button onclick="deletarTreino('${t.id}')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-2 py-1 rounded" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -567,13 +608,13 @@
         }
 
         async function deletarTreino(id) {
-            if (!confirm('Deseja excluir este treino salvo?')) return;
+            if (!confirm('Deseja excluir permanentemente este treino salvo?')) return;
             await supabaseClient.from('user_workouts').delete().eq('id', id);
             carregarTreinosSalvos();
         }
 
         function exportarPDF() {
-            html2pdf().from(document.getElementById('ficha-preview')).save('ficha-de-treino.pdf');
+            html2pdf().from(document.getElementById('ficha-preview')).save('ficha-de-treino-oficial.pdf');
         }
     </script>
 </body>
