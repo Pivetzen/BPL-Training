@@ -45,7 +45,7 @@
                         <label class="block text-xs font-medium text-slate-400 mb-1">Divisão de Treino (Split) *</label>
                         <select id="workout-split" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
                             <option value="A">Treino A (Fullbody / Único)</option>
-                            <option value="AB">Treino AB (Superior / Inferior)</option>
+                            <option value="AB" selected>Treino AB (Superior / Inferior)</option>
                             <option value="ABC">Treino ABC (Push / Pull / Legs)</option>
                             <option value="ABCD">Treino ABCD (Upper / Lower / Isolado)</option>
                             <option value="ABCDE">Treino ABCDE (Músculo por Dia)</option>
@@ -73,7 +73,7 @@
             </div>
 
             <button onclick="gerarTreinoComIA()" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btn-gerar-text">Gerar Sugestões (10 opções/grupo)</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btn-gerar-text">Gerar Ficha e Blocos por Letra</span>
             </button>
 
             <!-- TREINOS SALVOS -->
@@ -88,7 +88,7 @@
             </div>
         </section>
 
-        <!-- PAINEL DIREITO: BANCO DE 10 OPÇÕES E FICHA EDITÁVEL -->
+        <!-- PAINEL DIREITO: CARDS POR LETRA (AB, ABC...) E FICHA OFICIAL -->
         <section class="lg:col-span-8 flex flex-col gap-6">
             
             <!-- PAINEL ADMIN -->
@@ -111,37 +111,25 @@
                 </div>
             </div>
 
-            <!-- BANCO DE SUGESTÕES (10 OPÇÕES POR GRUPO MUSCULAR) -->
-            <div id="ai-suggestions-container" class="hidden bg-slate-900 border border-amber-500/50 rounded-2xl p-5 shadow-lg">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-md font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-brain"></i> Banco de 10 Opções por Grupo Muscular (IA)
-                    </h3>
-                    <span id="ai-loading" class="text-xs text-amber-400 animate-pulse hidden">Consultando acervo biomecânico...</span>
-                </div>
-                <p class="text-xs text-slate-400 mb-3">Selecione os exercícios desejados no acervo para popular automaticamente a Ficha de Treino Oficial ou estruturar os campos vazios.</p>
-                <div id="ai-exercises-checklist" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-2 mb-4"></div>
-                <div class="flex gap-2">
-                    <button onclick="adicionarExerciciosSelecionados()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
-                        Adicionar Selecionados à Ficha
-                    </button>
-                    <button onclick="gerarCamposVaziosSugeridos()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-semibold px-4 py-2 rounded-xl text-xs transition">
-                        Criar Campos Vazios com Grupos Sugeridos
-                    </button>
+            <!-- CONTAINER DE CARDS POR LETRA DE TREINO (Ex: Treino A, Treino B...) -->
+            <div id="treino-blocos-container" class="space-y-4">
+                <div class="bg-slate-900 border border-dashed border-slate-800 rounded-2xl p-6 text-center text-slate-500">
+                    <i class="fa-solid fa-layer-group text-2xl mb-2 text-amber-500/50"></i>
+                    <p class="text-xs">Clique em "Gerar Ficha e Blocos por Letra" para visualizar os cards estruturados por divisão (A, B, C...) com 10 opções por grupo muscular e campos de preenchimento inteligente.</p>
                 </div>
             </div>
 
-            <!-- FICHA DE TREINO OFICIAL -->
+            <!-- FICHA DE TREINO OFICIAL CONSOLIDADA -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex-1 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-user text-amber-400"></i> Ficha de Treino Oficial
+                            <i class="fa-solid fa-clipboard-user text-amber-400"></i> Ficha de Treino Oficial Consolidada
                         </h2>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="adicionarExercicioManual()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i> Novo Campo / Exercício
+                            <i class="fa-solid fa-plus"></i> Novo Exercício
                         </button>
                         <button onclick="exportarPDF()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
                             <i class="fa-solid fa-file-pdf"></i> Exportar PDF
@@ -155,7 +143,7 @@
                 <!-- CONTEÚDO DA FICHA -->
                 <div id="ficha-preview" class="space-y-6 flex-1 bg-slate-950 p-6 rounded-xl border border-slate-800/60">
                     <div class="text-center py-12 text-slate-500">
-                        Defina o Nome, o Split (A, AB, ABC...), Objetivo e Nível, depois clique em "Gerar Sugestões".
+                        A ficha consolidados aparecerá aqui conforme você preencher ou selecionar os exercícios nos blocos acima.
                     </div>
                 </div>
 
@@ -163,6 +151,9 @@
             </div>
         </section>
     </main>
+
+    <!-- DATALIST GLOBAL PARA AUTOCOMPLETE DE EXERCÍCIOS POR GRUPO -->
+    <datalist id="banco-exercicios-datalist"></datalist>
 
     <!-- MODAL AUTH -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -199,16 +190,69 @@
         let currentProfile = null;
         let treinoAtualGerado = {
             nome: 'Atleta',
-            split: 'ABC',
+            split: 'AB',
             objetivo: 'Hipertrofia',
             nivel: 'Iniciante',
             exercicios: []
         };
 
-        let exerciciosSugeridosIA = [];
+        // Acervo global com 10 opções por grupo muscular estruturado
+        let acervoGlobalExercicios = {
+            'Peitoral': [
+                'Supino Reto com Barra', 'Supino Inclinado com Halteres', 'Crucifixo na Polia', 'Supino Declinado', 
+                'Flexão de Braço no Solo', 'Cross-over Polia Alta', 'Supino Reto com Halteres', 'Peck Deck (Voador)', 
+                'Pullover com Halteres', 'Supino Inclinado na Máquina'
+            ],
+            'Costas': [
+                'Puxada Alta na Polia (Pronada)', 'Remada Baixa com Triângulo', 'Barra Fixa Pronada', 'Remada Curvada com Barra', 
+                'Remada Unilateral com Halter (Serrote)', 'Puxada com Pegada Neutra', 'Pulldown na Polia', 'Remada Cavalinho', 
+                'Remada Alta na Polia', 'Levantamento Terra'
+            ],
+            'Quadríceps': [
+                'Agachamento Livre', 'Leg Press 45º', 'Cadeira Extensora', 'Agachamento Hack', 
+                'Afundo com Halteres', 'Agachamento Búlgaro', 'Leg Press Horizontal', 'Passada em Caminhada', 
+                'Agachamento Sumô', 'Extensora Unilateral'
+            ],
+            'Posterior': [
+                'Cadeira Flexora', 'Mesa Flexora', 'Stiff com Barra', 'Good Morning', 
+                'Flexor Vertical', 'Stiff com Halteres', 'Nordic Hamstring Curl', 'Flexão de Perna em Pé na Polia', 
+                'Levantamento Terra Romeno', 'Kettlebell Swing'
+            ],
+            'Glúteos': [
+                'Elevação Pélvica com Barra', 'Hip Thrust na Máquina', 'Glúteo na Polia (Coice)', 'Cadeira Abdutora', 
+                'Elevação Pélvica Unilateral', 'Quatro Apoios na Polia', 'Sumô com Halter', 'Glúteo na Máquina', 
+                'Step-up com Halteres', 'Extensão de Quadril no Solo'
+            ],
+            'Ombros': [
+                'Desenvolvimento com Halteres', 'Elevação Lateral com Halteres', 'Desenvolvimento Militar com Barra', 'Elevação Frontal', 
+                'Crucifixo Inverso na Polia', 'Elevação Lateral na Polia', 'Desenvolvimento na Máquina', 'Remada Alta com Barra', 
+                'Face Pull', 'Encolhimento de Ombros'
+            ],
+            'Bíceps': [
+                'Rosca Direta com Barra', 'Rosca Alternada com Halteres', 'Rosca Scott com Barra W', 'Rosca Concentrada', 
+                'Rosca Martelo com Halteres', 'Rosca na Polia Baixa', 'Rosca Inversa com Barra', 'Rosca 45º com Halteres', 
+                'Rosca Cabaço / Spider', 'Rosca Direta na Máquina'
+            ],
+            'Tríceps': [
+                'Tríceps Pulley na Polia', 'Tríceps Testa com Barra W', 'Tríceps Corda na Polia', 'Supino com Pegada Fechada', 
+                'Tríceps Frances com Halter', 'Mergulho nas Paralelas', 'Tríceps Coice na Polia', 'Tríceps na Máquina', 
+                'Tríceps Testa na Polia', 'Mergulho no Banco'
+            ],
+            'Abdômen': [
+                'Abdominal Supra no Solo', 'Abdominal Infra na Paralela', 'Abdominal na Polia (Crunch)', 'Prancha Abdominal Isométrica', 
+                'Abdominal na Máquina', 'Elevação de Pernas Suspenso', 'Abdominal Oblíquo com Halter', 'Russian Twist com Peso', 
+                'Abdominal Canivete', 'Prancha Lateral'
+            ],
+            'Panturrilha': [
+                'Panturrilha em Pé na Máquina', 'Panturrilha Sentado (Solear)', 'Panturrilha no Leg Press 45º', 'Panturrilha em Pé Livre', 
+                'Panturrilha Unilateral no Degrau', 'Panturrilha na Máquina Donkey', 'Panturrilha no Smith', 'Panturrilha Tibial', 
+                'Panturrilha Sentado na Máquina', 'Panturrilha Jump'
+            ]
+        };
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checarSessao();
+            atualizarDatalistGlobal();
         });
 
         async function checarSessao() {
@@ -319,8 +363,19 @@
             carregarUsuariosAdmin();
         }
 
-        // GERADOR DE 10 OPÇÕES POR GRUPO MUSCULAR COM DIVISÃO ESPECIFICADA
-        async function gerarTreinoComIA() {
+        function atualizarDatalistGlobal() {
+            const datalist = document.getElementById('banco-exercicios-datalist');
+            let optionsHTML = '';
+            for (let grupo in acervoGlobalExercicios) {
+                acervoGlobalExercicios[grupo].forEach(ex => {
+                    optionsHTML += `<option value="${ex}">[${grupo}]</option>`;
+                });
+            }
+            datalist.innerHTML = optionsHTML;
+        }
+
+        // GERADOR DOS CARDS POR LETRA (A, AB, ABC, ABCD, ABCDE) E GAPS VAZIOS
+        function gerarTreinoComIA() {
             const nome = document.getElementById('student-name').value || 'Atleta';
             const split = document.getElementById('workout-split').value;
             const objetivo = document.getElementById('workout-goal').value;
@@ -331,144 +386,135 @@
             treinoAtualGerado.objetivo = objetivo;
             treinoAtualGerado.nivel = nivel;
 
-            document.getElementById('ai-loading').classList.remove('hidden');
-            document.getElementById('ai-suggestions-container').classList.remove('hidden');
-
-            const prompt = `Aja como Personal Trainer especialista. Para a divisão de treino "${split}", objetivo "${objetivo}" e nível "${nivel}", crie um acervo de sugestões contendo exatamente 10 opções de exercícios variados para cada grande grupo muscular relevante (Peitoral, Costas, Quadríceps, Posterior de Coxa, Ombros, Bíceps, Tríceps, Abdômen).
-            Retorne APENAS um array JSON puro, sem blocos markdown, onde cada objeto possui as chaves:
-            - "nome": Nome correto do exercício.
-            - "grupoMuscular": Grupo muscular correspondente.
-            - "series": Sugestão de séries (ex: "3" ou "4").
-            - "reps": Sugestão de repetições (ex: "10-12").
-            - "descanso": Sugestão de intervalo (ex: "60s").`;
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=SUA_CHAVE_API_GEMINI`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-
-                let exercicios = [];
-                if (!response.ok) {
-                    exercicios = gerarAcervo10OpcoesFallback(split, objetivo);
-                } else {
-                    const data = await response.json();
-                    const textoResposta = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
-                    exercicios = JSON.parse(textoResposta);
-                }
-
-                exerciciosSugeridosIA = exercicios;
-                renderizarChecklistIA(exercicios);
-            } catch (err) {
-                const exerciciosFallback = gerarAcervo10OpcoesFallback(split, objetivo);
-                exerciciosSugeridosIA = exerciciosFallback;
-                renderizarChecklistIA(exerciciosFallback);
-            } finally {
-                document.getElementById('ai-loading').classList.add('hidden');
-            }
-        }
-
-        // FALLBACK ROBUSTO CONTENDO 10 OPÇÕES POR GRUPO
-        function gerarAcervo10OpcoesFallback(split, objetivo) {
-            return [
-                // Peitoral (10 opções)
-                { nome: 'Supino Reto com Barra', grupoMuscular: 'Peitoral', series: 4, reps: '8-10', descanso: '90s' },
-                { nome: 'Supino Inclinado com Halteres', grupoMuscular: 'Peitoral', series: 4, reps: '10-12', descanso: '60s' },
-                { nome: 'Crucifixo na Polia', grupoMuscular: 'Peitoral', series: 3, reps: '12-15', descanso: '45s' },
-                { nome: 'Supino Declinado', grupoMuscular: 'Peitoral', series: 3, reps: '10-12', descanso: '60s' },
-                { nome: 'Flexão de Braço no Solo', grupoMuscular: 'Peitoral', series: 3, reps: 'Máximo', descanso: '45s' },
-                { nome: 'Cross-over Polia Alta', grupoMuscular: 'Peitoral', series: 3, reps: '12-15', descanso: '45s' },
-                { nome: 'Supino Reto com Halteres', grupoMuscular: 'Peitoral', series: 4, reps: '8-10', descanso: '60s' },
-                { nome: 'Peck Deck (Voador)', grupoMuscular: 'Peitoral', series: 3, reps: '12', descanso: '45s' },
-                { nome: 'Pullover com Halteres', grupoMuscular: 'Peitoral', series: 3, reps: '12', descanso: '60s' },
-                { nome: 'Supino Inclinado na Máquina', grupoMuscular: 'Peitoral', series: 3, reps: '10', descanso: '60s' },
-
-                // Costas (10 opções)
-                { nome: 'Puxada Alta na Polia (Pronada)', grupoMuscular: 'Costas', series: 4, reps: '10-12', descanso: '60s' },
-                { nome: 'Remada Baixa com Triângulo', grupoMuscular: 'Costas', series: 4, reps: '10-12', descanso: '60s' },
-                { nome: 'Barra Fixa Pronada', grupoMuscular: 'Costas', series: 4, reps: 'Máximo', descanso: '90s' },
-                { nome: 'Remada Curvada com Barra', grupoMuscular: 'Costas', series: 4, reps: '8-10', descanso: '90s' },
-                { nome: 'Remada Unilateral com Halter (Serrote)', grupoMuscular: 'Costas', series: 3, reps: '10-12', descanso: '60s' },
-                { nome: 'Puxada com Pegada Neutra', grupoMuscular: 'Costas', series: 3, reps: '12', descanso: '60s' },
-                { nome: 'Pulldown na Polia', grupoMuscular: 'Costas', series: 3, reps: '12-15', descanso: '45s' },
-                { nome: 'Remada Cavalinho', grupoMuscular: 'Costas', series: 4, reps: '8-10', descanso: '90s' },
-                { nome: 'Remada Alta na Polia', grupoMuscular: 'Costas', series: 3, reps: '12', descanso: '45s' },
-                { nome: 'Levantamento Terra', grupoMuscular: 'Costas', series: 4, reps: '5-8', descanso: '120s' },
-
-                // Quadríceps (10 opções)
-                { nome: 'Agachamento Livre', grupoMuscular: 'Quadríceps', series: 4, reps: '8-10', descanso: '120s' },
-                { nome: 'Leg Press 45º', grupoMuscular: 'Quadríceps', series: 4, reps: '10-12', descanso: '90s' },
-                { nome: 'Cadeira Extensora', grupoMuscular: 'Quadríceps', series: 4, reps: '12-15', descanso: '60s' },
-                { nome: 'Agachamento Hack', grupoMuscular: 'Quadríceps', series: 3, reps: '10-12', descanso: '90s' },
-                { nome: 'Afundo com Halteres', grupoMuscular: 'Quadríceps', series: 3, reps: '12 cada', descanso: '60s' },
-                { nome: 'Agachamento Búlgaro', grupoMuscular: 'Quadríceps', series: 3, reps: '10 cada', descanso: '60s' },
-                { nome: 'Leg Press Horizontal', grupoMuscular: 'Quadríceps', series: 3, reps: '12', descanso: '60s' },
-                { nome: 'Passada em Caminhada', grupoMuscular: 'Quadríceps', series: 3, reps: '20 passos', descanso: '60s' },
-                { nome: 'Agachamento Sumô', grupoMuscular: 'Quadríceps', series: 3, reps: '10', descanso: '60s' },
-                { nome: 'Extensora Unilateral', grupoMuscular: 'Quadríceps', series: 3, reps: '12', descanso: '45s' }
-            ];
-        }
-
-        function renderizarChecklistIA(lista) {
-            const container = document.getElementById('ai-exercises-checklist');
-            container.innerHTML = lista.map((ex, index) => `
-                <label class="flex items-center space-x-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-amber-500/50 cursor-pointer text-xs">
-                    <input type="checkbox" value="${index}" class="ai-ex-checkbox accent-amber-500 rounded">
-                    <div class="flex-1">
-                        <span class="font-bold text-white">${ex.nome}</span>
-                        <span class="text-amber-400 text-[10px] block"><i class="fa-solid fa-bullseye"></i> ${ex.grupoMuscular}</span>
-                        <span class="text-slate-400 block text-[10px]">Séries: ${ex.series} • Reps: ${ex.reps}</span>
-                    </div>
-                </label>
-            `).join('');
-        }
-
-        function adicionarExerciciosSelecionados() {
-            const checkboxes = document.querySelectorAll('.ai-ex-checkbox:checked');
-            if (checkboxes.length === 0) {
-                alert('Selecione pelo menos um exercício do acervo.');
-                return;
+            // Definir estrutura de blocos por letra com base no split selecionado
+            let blocosConfig = [];
+            if (split === 'A') {
+                blocosConfig = [
+                    { letra: 'A', titulo: 'Treino A (Fullbody)', grupos: ['Peitoral', 'Costas', 'Quadríceps', 'Posterior', 'Ombros', 'Bíceps', 'Tríceps', 'Abdomen'] }
+                ];
+            } else if (split === 'AB') {
+                blocosConfig = [
+                    { letra: 'A', titulo: 'Treino A - Membros Superiores & Core', grupos: ['Peitoral', 'Costas', 'Ombros', 'Bíceps', 'Tríceps', 'Abdômen'] },
+                    { letra: 'B', titulo: 'Treino B - Membros Inferiores', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
+                ];
+            } else if (split === 'ABC') {
+                blocosConfig = [
+                    { letra: 'A', titulo: 'Treino A - Push (Peito, Ombro, Tríceps)', grupos: ['Peitoral', 'Ombros', 'Tríceps'] },
+                    { letra: 'B', titulo: 'Treino B - Pull (Costas, Bíceps, Abdômen)', grupos: ['Costas', 'Bíceps', 'Abdômen'] },
+                    { letra: 'C', titulo: 'Treino C - Legs (Pernas Completas)', grupos: ['Quadríceps', 'Posterior', 'Glúteos', 'Panturrilha'] }
+                ];
+            } else if (split === 'ABCD') {
+                blocosConfig = [
+                    { letra: 'A', titulo: 'Treino A - Upper (Peito e Costas)', grupos: ['Peitoral', 'Costas'] },
+                    { letra: 'B', titulo: 'Treino B - Lower (Quadríceps e Panturrilha)', grupos: ['Quadríceps', 'Panturrilha'] },
+                    { letra: 'C', titulo: 'Treino C - Upper (Ombros e Braços)', grupos: ['Ombros', 'Bíceps', 'Tríceps'] },
+                    { letra: 'D', titulo: 'Treino D - Lower (Posterior e Glúteos)', grupos: ['Posterior', 'Glúteos', 'Abdômen'] }
+                ];
+            } else if (split === 'ABCDE') {
+                blocosConfig = [
+                    { letra: 'A', titulo: 'Treino A - Peitoral e Abdômen', grupos: ['Peitoral', 'Abdômen'] },
+                    { letra: 'B', titulo: 'Treino B - Costas e Panturrilha', grupos: ['Costas', 'Panturrilha'] },
+                    { letra: 'C', titulo: 'Treino C - Pernas (Foco Quadríceps)', grupos: ['Quadríceps', 'Glúteos'] },
+                    { letra: 'D', titulo: 'Treino D - Ombros e Trapézio', grupos: ['Ombros'] },
+                    { letra: 'E', titulo: 'Treino E - Braços (Bíceps e Tríceps)', grupos: ['Bíceps', 'Tríceps', 'Posterior'] }
+                ];
             }
 
-            checkboxes.forEach(cb => {
-                const ex = exerciciosSugeridosIA[cb.value];
-                treinoAtualGerado.exercicios.push({
-                    nome: ex.nome,
-                    grupoMuscular: ex.grupoMuscular || 'Geral',
-                    series: ex.series,
-                    reps: ex.reps,
-                    descanso: ex.descanso || '60s',
-                    carga: ''
+            // Gerar exercícios iniciais vazios baseados nos blocos para o usuário preencher
+            treinoAtualGerado.exercicios = [];
+            blocosConfig.forEach(bloco => {
+                bloco.grupos.forEach(g => {
+                    treinoAtualGerado.exercicios.push({
+                        treinoLetra: bloco.letra,
+                        nome: '',
+                        grupoMuscular: g,
+                        series: '3',
+                        reps: '10-12',
+                        descanso: '60s',
+                        carga: ''
+                    });
                 });
             });
 
+            renderizarBlocosPorLetra(blocosConfig);
             renderizarFichaVisual(treinoAtualGerado);
         }
 
-        // GERAR CAMPOS VAZIOS SUGERIDOS PELA IA PARA O USUÁRIO PREENCHER
-        function gerarCamposVaziosSugeridos() {
-            const split = treinoAtualGerado.split;
-            let gruposSugeridos = ['Peitoral', 'Costas', 'Quadríceps', 'Ombros', 'Bíceps', 'Tríceps'];
-            if (split === 'AB') gruposSugeridos = ['Quadríceps', 'Posterior', 'Glúteos', 'Peitoral', 'Costas', 'Ombros'];
-            if (split === 'ABC') gruposSugeridos = ['Peitoral', 'Tríceps', 'Ombros', 'Costas', 'Bíceps', 'Abdômen', 'Quadríceps', 'Panturrilha'];
+        // RENDERIZAR CARDS POR LETRA COM AS 10 OPÇÕES DE SUGESTÃO PARA CADA GRUPO
+        function renderizarBlocosPorLetra(blocosConfig) {
+            const container = document.getElementById('treino-blocos-container');
+            container.innerHTML = blocosConfig.map(bloco => `
+                <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-5 shadow-lg">
+                    <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
+                        <h3 class="text-md font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-dumbbell text-amber-400"></i> Card ${bloco.titulo}
+                        </h3>
+                        <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs px-2.5 py-1 rounded-lg font-bold">Treino ${bloco.letra}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">Grupos sugeridos para este card. Clique em uma sugestão para preencher rapidamente um campo ou digite livremente na ficha abaixo.</p>
+                    <div class="space-y-4">
+                        ${bloco.grupos.map(grupo => {
+                            const opcoes = acervoGlobalExercicios[grupo] || [];
+                            return `
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bullseye text-[10px]"></i> ${grupo} (10 Opções)
+                                        </span>
+                                        <button onclick="adicionarLinhaParaGrupo('${bloco.letra}', '${grupo}')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-1 rounded border border-amber-500/30 transition">
+                                            + Adicionar Campo para ${grupo}
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                        ${opcoes.map(ex => `
+                                            <button onclick="preencherProximoCampoVazio('${bloco.letra}', '${grupo}', '${ex.replace(/'/g, "\\'")}')" class="text-[11px] bg-slate-900 hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 border border-slate-800 px-2.5 py-1 rounded-lg transition text-left">
+                                                ${ex}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            gruposSugeridos.forEach(g => {
+        function adicionarLinhaParaGrupo(letra, grupo) {
+            treinoAtualGerado.exercicios.push({
+                treinoLetra: letra,
+                nome: '',
+                grupoMuscular: grupo,
+                series: '3',
+                reps: '10-12',
+                descanso: '60s',
+                carga: ''
+            });
+            renderizarFichaVisual(treinoAtualGerado);
+        }
+
+        function preencherProximoCampoVazio(letra, grupo, nomeExercicio) {
+            // Tenta achar um campo vazio do mesmo treino/grupo, senão adiciona um novo
+            let index = treinoAtualGerado.exercicios.findIndex(e => e.treinoLetra === letra && e.grupoMuscular === grupo && (!e.nome || e.nome.trim() === ''));
+            if (index !== -1) {
+                treinoAtualGerado.exercicios[index].nome = nomeExercicio;
+            } else {
                 treinoAtualGerado.exercicios.push({
-                    nome: '', // Campo vazio para o usuário preencher ou escolher
-                    grupoMuscular: g,
+                    treinoLetra: letra,
+                    nome: nomeExercicio,
+                    grupoMuscular: grupo,
                     series: '3',
                     reps: '10-12',
                     descanso: '60s',
                     carga: ''
                 });
-            });
-
+            }
             renderizarFichaVisual(treinoAtualGerado);
         }
 
         function adicionarExercicioManual() {
             treinoAtualGerado.exercicios.push({
+                treinoLetra: 'A',
                 nome: '',
                 grupoMuscular: 'Geral',
                 series: '3',
@@ -484,6 +530,7 @@
             renderizarFichaVisual(treinoAtualGerado);
         }
 
+        // RENDERIZAÇÃO DA FICHA OFICIAL CONSOLIDADA COM LIST DE AUTOCOMPLETE
         function renderizarFichaVisual(treino) {
             const preview = document.getElementById('ficha-preview');
             preview.innerHTML = `
@@ -499,8 +546,9 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-slate-900 text-slate-400 border-b border-slate-800">
-                                <th class="py-2.5 px-3">Exercício / Campo Personalizado</th>
-                                <th class="py-2.5 px-3">Grupo Muscular Sugerido</th>
+                                <th class="py-2.5 px-3">Treino</th>
+                                <th class="py-2.5 px-3">Exercício (Autocomplete p/ Grupo)</th>
+                                <th class="py-2.5 px-3">Grupo</th>
                                 <th class="py-2.5 px-3">Séries</th>
                                 <th class="py-2.5 px-3">Reps / Tempo</th>
                                 <th class="py-2.5 px-3">Descanso</th>
@@ -510,11 +558,20 @@
                         </thead>
                         <tbody>
                             ${treino.exercicios.length === 0 ? `
-                                <tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum exercício na ficha. Selecione acima no acervo ou crie campos vazios.</td></tr>
+                                <tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum exercício na ficha. Selecione nos blocos acima ou adicione manualmente.</td></tr>
                             ` : treino.exercicios.map((e, idx) => `
                                 <tr class="border-b border-slate-900 hover:bg-slate-800/20">
                                     <td class="py-3 px-3">
-                                        <input type="text" value="${e.nome || ''}" onchange="atualizarParametro(${idx}, 'nome', this.value)" placeholder="Digite ou selecione o exercício..." class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500 font-medium">
+                                        <select onchange="atualizarParametro(${idx}, 'treinoLetra', this.value)" class="bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+                                            <option value="A" ${e.treinoLetra === 'A' ? 'selected' : ''}>A</option>
+                                            <option value="B" ${e.treinoLetra === 'B' ? 'selected' : ''}>B</option>
+                                            <option value="C" ${e.treinoLetra === 'C' ? 'selected' : ''}>C</option>
+                                            <option value="D" ${e.treinoLetra === 'D' ? 'selected' : ''}>D</option>
+                                            <option value="E" ${e.treinoLetra === 'E' ? 'selected' : ''}>E</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <input type="text" list="banco-exercicios-datalist" value="${e.nome || ''}" onchange="atualizarParametro(${idx}, 'nome', this.value)" placeholder="Digite ou selecione o exercício..." class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-amber-500 font-medium">
                                     </td>
                                     <td class="py-3 px-3 text-amber-400/80 font-semibold">${e.grupoMuscular || 'Geral'}</td>
                                     <td class="py-3 px-3">
@@ -621,7 +678,7 @@
             if (!t) return;
             treinoAtualGerado = {
                 nome: t.student_name,
-                split: 'ABC',
+                split: 'AB',
                 objetivo: t.goal,
                 nivel: t.level || 'Iniciante',
                 exercicios: t.workout_data
@@ -630,7 +687,9 @@
             document.getElementById('workout-goal').value = t.goal || 'Hipertrofia';
             document.getElementById('workout-level').value = t.level || 'Iniciante';
             document.getElementById('edit-workout-id').value = t.id;
-            renderizarFichaVisual(treinoAtualGerado);
+            
+            // Simula clique de geração para recriar os cards dos blocos
+            gerarTreinoComIA();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
