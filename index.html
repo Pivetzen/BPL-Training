@@ -187,11 +187,11 @@
     // ----------------------------------------------------
     // 1. CONFIGURAÇÃO DO SUPABASE
     // ----------------------------------------------------
-    const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co/rest/v1/';
+    const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
 
     let supabase = null;
-    if (SUPABASE_URL !== 'SUA_PROJECT_URL_AQUI') {
+    if (SUPABASE_URL && window.supabase) {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
@@ -199,6 +199,7 @@
     let currentUser = null;
     let currentGeneratedWorkout = null;
     let activeSectionIndexToAdd = null;
+    let loadedHistoryCache = [];
 
     // Base local de fallback
     const fallbackDB = {
@@ -323,7 +324,7 @@
 
       workout.sections.forEach((section, sIdx) => {
         html += `
-          <div class="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50 relative">
+          <div class="workout-section mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50 relative">
             <div class="flex justify-between items-center mb-3 border-b border-indigo-200 pb-2">
               <h4 class="text-md font-bold text-indigo-700 uppercase">${section.name}</h4>
               <button onclick="openAddExerciseModal(${sIdx})" class="no-print bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 border border-indigo-200">
@@ -346,7 +347,7 @@
 
         section.items.forEach((item, iIdx) => {
           const techBadge = item.technique && item.technique !== 'Normal' 
-            ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300 uppercase">${item.technique}</span>`
+            ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300 uppercase inline-block">${item.technique}</span>`
             : `<span class="text-gray-400 text-xs">-</span>`;
 
           html += `
@@ -402,7 +403,6 @@
     function updateExerciseParam(sIdx, iIdx, field, value) {
       if (currentGeneratedWorkout) {
         currentGeneratedWorkout.sections[sIdx].items[iIdx][field] = value;
-        // Não precisamos re-renderizar a página inteira para não perder o foco do input
       }
     }
 
@@ -492,30 +492,33 @@
         return;
       }
 
-      listContainer.innerHTML = data.map(item => `
+      loadedHistoryCache = data;
+
+      listContainer.innerHTML = data.map((item, index) => `
         <div class="p-3 border rounded-lg hover:bg-indigo-50 flex justify-between items-center transition">
           <div>
             <h5 class="font-bold text-gray-800 text-sm">${item.title}</h5>
             <p class="text-xs text-gray-500">${new Date(item.created_at).toLocaleDateString('pt-BR')}</p>
           </div>
-          <button onclick='loadWorkoutFromHistory(${JSON.stringify(item.workout_data)})' class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-700">
+          <button onclick='loadWorkoutFromHistoryIndex(${index})' class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-700">
             Abrir
           </button>
         </div>
       `).join('');
     }
 
-    function loadWorkoutFromHistory(workout) {
-      currentGeneratedWorkout = workout;
-      renderWorkout(workout);
-      toggleHistoryModal();
+    function loadWorkoutFromHistoryIndex(index) {
+      if (loadedHistoryCache[index]) {
+        currentGeneratedWorkout = loadedHistoryCache[index].workout_data;
+        renderWorkout(currentGeneratedWorkout);
+        toggleHistoryModal();
+      }
     }
 
     // ----------------------------------------------------
     // 4. EXPORTAÇÃO PARA PDF
     // ----------------------------------------------------
     function exportToPDF() {
-      // Ocultar elementos marcados com 'no-print' durante a geração do PDF
       document.body.classList.add('exporting-pdf');
 
       const element = document.getElementById('workout-printable');
@@ -524,7 +527,8 @@
         filename:     `ficha-treino-${new Date().getTime()}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
@@ -542,7 +546,7 @@
     async function handleAuth(e) {
       e.preventDefault();
       if (!supabase) {
-        alert("Por favor, insira suas chaves do Supabase no arquivo HTML.");
+        alert("Configuração do Supabase pendente.");
         return;
       }
 
@@ -593,7 +597,7 @@
   </script>
 
   <style>
-    /* Suporte para ocultar botões e trocar visibilidade ao exportar PDF */
+    /* Suporte para ocultar elementos ao exportar para PDF */
     .exporting-pdf .no-print {
       display: none !important;
     }
@@ -602,6 +606,10 @@
     }
     .exporting-pdf .only-print {
       display: block !important;
+    }
+    /* Evita corte acidental de blocos entre páginas do PDF */
+    .exporting-pdf .workout-section {
+      page-break-inside: avoid;
     }
   </style>
 </body>
