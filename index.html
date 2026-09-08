@@ -72,7 +72,7 @@
         </div>
 
         <button type="submit" id="btn-generate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition duration-150 flex justify-center items-center gap-2">
-          🔥 Gerar Treino Base
+          🔥 Gerar Treino Personalizado
         </button>
       </form>
     </section>
@@ -185,14 +185,18 @@
   <!-- Script Principal -->
   <script>
     // ----------------------------------------------------
-    // 1. CONFIGURAÇÃO DO SUPABASE
+    // 1. CONFIGURAÇÃO DO SUPABASE COM TRY-CATCH
     // ----------------------------------------------------
     const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
 
     let supabase = null;
-    if (SUPABASE_URL && window.supabase) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    try {
+      if (SUPABASE_URL && window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (err) {
+      console.warn("Supabase não pôde ser inicializado. Rodando em modo local/offline.", err);
     }
 
     let authAction = 'login';
@@ -213,22 +217,26 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       if (supabase) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          currentUser = session.user;
-          updateUIOnAuth();
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            currentUser = session.user;
+            updateUIOnAuth();
+          }
+        } catch(e) {
+          console.warn("Sessão não verificada devido a erro no Supabase:", e);
         }
       }
     });
 
     // ----------------------------------------------------
-    // 2. GERADOR DE TREINOS
+    // 2. GERADOR DE TREINOS (SEGURO CONTRA FALHAS)
     // ----------------------------------------------------
     async function generateWorkout(e) {
       if (e) e.preventDefault();
 
       const btnGenerate = document.getElementById('btn-generate');
-      btnGenerate.innerHTML = '⏳ Buscando no banco...';
+      btnGenerate.innerHTML = '⏳ Processando...';
       btnGenerate.disabled = true;
 
       const studentName = document.getElementById('student-name').value || 'Aluno(a)';
@@ -261,9 +269,13 @@
 
       let dbExercises = null;
       if (supabase) {
-        const { data, error } = await supabase.from('exercises').select('*');
-        if (!error && data && data.length > 0) {
-          dbExercises = data;
+        try {
+          const { data, error } = await supabase.from('exercises').select('*');
+          if (!error && data && data.length > 0) {
+            dbExercises = data;
+          }
+        } catch (err) {
+          console.warn("Erro ao buscar exercícios do Supabase, usando fallback local.", err);
         }
       }
 
@@ -301,11 +313,11 @@
 
       renderWorkout(currentGeneratedWorkout);
 
-      btnGenerate.innerHTML = '🔥 Gerar Treino Base';
+      btnGenerate.innerHTML = '🔥 Gerar Treino Personalizado';
       btnGenerate.disabled = false;
     }
 
-    // Renderiza e permite edição ao vivo
+    // Renderiza a ficha gerada
     function renderWorkout(workout) {
       const container = document.getElementById('workout-printable');
       let html = `
@@ -397,9 +409,7 @@
       }
     }
 
-    // ----------------------------------------------------
-    // FUNÇÕES DE EDIÇÃO MANUAL DE EXERCÍCIOS
-    // ----------------------------------------------------
+    // Edição manual dos treinos
     function updateExerciseParam(sIdx, iIdx, field, value) {
       if (currentGeneratedWorkout) {
         currentGeneratedWorkout.sections[sIdx].items[iIdx][field] = value;
@@ -444,32 +454,36 @@
     }
 
     // ----------------------------------------------------
-    // 3. SALVAR E CARREGAR HISTÓRICO NO SUPABASE
+    // 3. SALVAR E HISTÓRICO
     // ----------------------------------------------------
     async function saveWorkoutToSupabase() {
       if (!supabase || !currentUser) {
-        alert("Você precisa estar logado para salvar fichas.");
+        alert("Sua chave do Supabase precisa estar ativa para salvar fichas na nuvem.");
         return;
       }
 
       if (!currentGeneratedWorkout) return;
 
-      const { error } = await supabase.from('user_workouts').insert([
-        {
-          user_id: currentUser.id,
-          title: currentGeneratedWorkout.title,
-          workout_data: currentGeneratedWorkout
-        }
-      ]);
+      try {
+        const { error } = await supabase.from('user_workouts').insert([
+          {
+            user_id: currentUser.id,
+            title: currentGeneratedWorkout.title,
+            workout_data: currentGeneratedWorkout
+          }
+        ]);
 
-      if (error) {
-        alert("Erro ao salvar o treino: " + error.message);
-      } else {
-        alert("Ficha de treino salva com sucesso no seu perfil!");
+        if (error) {
+          alert("Erro ao salvar o treino: " + error.message);
+        } else {
+          alert("Ficha de treino salva com sucesso!");
+        }
+      } catch (err) {
+        alert("Erro de conexão ao salvar ficha: " + err.message);
       }
     }
 
-    async function toggleHistoryModal() {
+    function toggleHistoryModal() {
       const modal = document.getElementById('history-modal');
       modal.classList.toggle('hidden');
 
@@ -482,29 +496,38 @@
       const listContainer = document.getElementById('history-list');
       listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">Buscando seus treinos...</p>`;
 
-      const { data, error } = await supabase
-        .from('user_workouts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error || !data || data.length === 0) {
-        listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">Nenhum treino salvo encontrado.</p>`;
+      if (!supabase) {
+        listContainer.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Conexão com banco não disponível.</p>`;
         return;
       }
 
-      loadedHistoryCache = data;
+      try {
+        const { data, error } = await supabase
+          .from('user_workouts')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      listContainer.innerHTML = data.map((item, index) => `
-        <div class="p-3 border rounded-lg hover:bg-indigo-50 flex justify-between items-center transition">
-          <div>
-            <h5 class="font-bold text-gray-800 text-sm">${item.title}</h5>
-            <p class="text-xs text-gray-500">${new Date(item.created_at).toLocaleDateString('pt-BR')}</p>
+        if (error || !data || data.length === 0) {
+          listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">Nenhum treino salvo encontrado.</p>`;
+          return;
+        }
+
+        loadedHistoryCache = data;
+
+        listContainer.innerHTML = data.map((item, index) => `
+          <div class="p-3 border rounded-lg hover:bg-indigo-50 flex justify-between items-center transition">
+            <div>
+              <h5 class="font-bold text-gray-800 text-sm">${item.title}</h5>
+              <p class="text-xs text-gray-500">${new Date(item.created_at).toLocaleDateString('pt-BR')}</p>
+            </div>
+            <button onclick='loadWorkoutFromHistoryIndex(${index})' class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-700">
+              Abrir
+            </button>
           </div>
-          <button onclick='loadWorkoutFromHistoryIndex(${index})' class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-700">
-            Abrir
-          </button>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (e) {
+        listContainer.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Erro ao carregar histórico.</p>`;
+      }
     }
 
     function loadWorkoutFromHistoryIndex(index) {
@@ -537,7 +560,7 @@
     }
 
     // ----------------------------------------------------
-    // 5. AUTENTICAÇÃO SUPABASE
+    // 5. MODAL DE LOGIN / CADASTRO
     // ----------------------------------------------------
     function toggleAuthModal() {
       document.getElementById('auth-modal').classList.toggle('hidden');
@@ -546,27 +569,31 @@
     async function handleAuth(e) {
       e.preventDefault();
       if (!supabase) {
-        alert("Configuração do Supabase pendente.");
+        alert("A chave de API do Supabase expirou ou está inválida. Atualize as credenciais no código.");
         return;
       }
 
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
 
-      let result = null;
-      if (authAction === 'signup') {
-        result = await supabase.auth.signUp({ email, password });
-      } else {
-        result = await supabase.auth.signInWithPassword({ email, password });
-      }
+      try {
+        let result = null;
+        if (authAction === 'signup') {
+          result = await supabase.auth.signUp({ email, password });
+        } else {
+          result = await supabase.auth.signInWithPassword({ email, password });
+        }
 
-      if (result.error) {
-        alert('Erro: ' + result.error.message);
-      } else {
-        currentUser = result.data.user;
-        updateUIOnAuth();
-        toggleAuthModal();
-        alert(authAction === 'signup' ? 'Cadastro realizado com sucesso!' : 'Login efetuado!');
+        if (result.error) {
+          alert('Erro de autenticação: ' + result.error.message);
+        } else {
+          currentUser = result.data.user;
+          updateUIOnAuth();
+          toggleAuthModal();
+          alert(authAction === 'signup' ? 'Cadastro realizado!' : 'Login efetuado com sucesso!');
+        }
+      } catch(err) {
+        alert("Falha na requisição de autenticação: " + err.message);
       }
     }
 
@@ -590,14 +617,15 @@
     }
 
     async function logout() {
-      if (supabase) await supabase.auth.signOut();
+      if (supabase) {
+        try { await supabase.auth.signOut(); } catch(e){}
+      }
       currentUser = null;
       updateUIOnAuth();
     }
   </script>
 
   <style>
-    /* Suporte para ocultar elementos ao exportar para PDF */
     .exporting-pdf .no-print {
       display: none !important;
     }
@@ -607,7 +635,6 @@
     .exporting-pdf .only-print {
       display: block !important;
     }
-    /* Evita corte acidental de blocos entre páginas do PDF */
     .exporting-pdf .workout-section {
       page-break-inside: avoid;
     }
