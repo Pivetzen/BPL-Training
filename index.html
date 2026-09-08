@@ -185,7 +185,7 @@
   <!-- Script Principal -->
   <script>
     // ----------------------------------------------------
-    // 1. CONFIGURAÇÃO DO SUPABASE COM TRY-CATCH
+    // 1. CONFIGURAÇÃO DO SUPABASE
     // ----------------------------------------------------
     const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
@@ -569,7 +569,7 @@
     async function handleAuth(e) {
       e.preventDefault();
       if (!supabase) {
-        alert("A chave de API do Supabase expirou ou está inválida. Atualize as credenciais no código.");
+        alert("A chave de API do Supabase não pôde ser conectada.");
         return;
       }
 
@@ -590,7 +590,7 @@
           currentUser = result.data.user;
           updateUIOnAuth();
           toggleAuthModal();
-          alert(authAction === 'signup' ? 'Cadastro realizado!' : 'Login efetuado com sucesso!');
+          alert(authAction === 'signup' ? 'Cadastro realizado com sucesso!' : 'Login efetuado com sucesso!');
         }
       } catch(err) {
         alert("Falha na requisição de autenticação: " + err.message);
