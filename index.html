@@ -36,7 +36,7 @@
         <!-- Coluna Esquerda: Configurar Treino & Treinos Salvos -->
         <div class="space-y-6">
             
-            <!-- 3. Card Configurar Treino (com Nome e Local) -->
+            <!-- Card Configurar Treino -->
             <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
                 <h2 class="text-xl font-bold mb-4 text-amber-400 border-b border-slate-700 pb-2">Configurar Treino</h2>
                 
@@ -86,7 +86,7 @@
                 </div>
             </section>
 
-            <!-- 4. Card de Lista dos Treinos Salvos -->
+            <!-- Card Treinos Salvos -->
             <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                     <h2 class="text-xl font-bold text-amber-400">Treinos Salvos</h2>
@@ -100,7 +100,7 @@
 
         </div>
 
-        <!-- Coluna Direita: Display / Output Section -->
+        <!-- Coluna Direita: Ficha de Treino -->
         <section class="lg:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
@@ -135,11 +135,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">E-mail</label>
-                    <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Senha</label>
-                    <input type="password" id="auth-senha" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="password" id="auth-senha" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
 
                 <button type="button" id="btn-submeter-auth" onclick="submeterAuth()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-lg transition-all cursor-pointer">
@@ -156,16 +156,19 @@
 
     <!-- Script Principal -->
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
+        // CONFIGURAÇÃO DO SUPABASE (Substitua quando tiver as chaves)
         const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
         
         let supabase = null;
-        if (typeof createClient !== 'undefined' && !SUPABASE_URL.includes('SEU-PROJETO')) {
-            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        try {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_URL.includes('.supabase.co') && !SUPABASE_URL.includes('SEU-PROJETO')) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) {
+            console.warn('Supabase não configurado. Operando em modo local.');
         }
 
-        // 5. Banco de dados de Exercícios com Nome, Séries, Repetições, Carga Padrão e Observação
         const exerciciosDB = {
             peito: [
                 { nome: "Supino Reto com Barra", series: 4, reps: "8-12", carga: "20kg Lado", obs: "Mantenha as escápulas retraídas, desça a barra até tocar o peito sem rebater." },
@@ -196,10 +199,107 @@
         let usuarioAtual = null;
         let treinoAtualmenteGerado = null;
 
-        // 1. Verificar se o usuário está logado antes de gerar
+        function abrirModalAuth() {
+            document.getElementById('modal-auth').classList.remove('hidden');
+        }
+
+        function fecharModalAuth() {
+            document.getElementById('modal-auth').classList.add('hidden');
+        }
+
+        let modoCadastro = false;
+        function alternarModoAuth() {
+            modoCadastro = !modoCadastro;
+            document.getElementById('modal-titulo').innerText = modoCadastro ? 'Solicitar Cadastro' : 'Entrar na Conta';
+            document.getElementById('btn-submeter-auth').innerText = modoCadastro ? 'Enviar Solicitação' : 'Acessar';
+            document.getElementById('auth-toggle-msg').innerText = modoCadastro ? 'Já tem uma conta?' : 'Não tem uma conta?';
+        }
+
+        async function submeterAuth() {
+            const email = document.getElementById('auth-email').value.trim();
+            const senha = document.getElementById('auth-senha').value.trim();
+
+            if (!email || !senha) {
+                alert('Preencha e-mail e senha!');
+                return;
+            }
+
+            if (supabase) {
+                if (modoCadastro) {
+                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
+                    if (error) {
+                        alert('Erro ao cadastrar: ' + error.message);
+                    } else {
+                        alert('Solicitação enviada com sucesso! Aguarde a aprovação do administrador para conseguir acessar.');
+                        fecharModalAuth();
+                    }
+                } else {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                    if (error) {
+                        alert('Erro ao logar: ' + error.message);
+                        return;
+                    }
+
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('status')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    if (profile && profile.status !== 'approved') {
+                        await supabase.auth.signOut();
+                        alert('Sua conta ainda está aguardando aprovação do administrador.');
+                        return;
+                    }
+
+                    usuarioAtual = data.user;
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    fecharModalAuth();
+                    carregarTreinosSalvos();
+                }
+            } else {
+                // Fallback Local Storage
+                if (modoCadastro) {
+                    alert('Solicitação de cadastro recebida! Em ambiente local, você pode acessar diretamente.');
+                    alternarModoAuth();
+                } else {
+                    usuarioAtual = { id: 'local_user', email };
+                    localStorage.setItem('bpl_user', JSON.stringify(usuarioAtual));
+                    atualizarInterfaceUsuario(usuarioAtual);
+                    fecharModalAuth();
+                    carregarTreinosSalvos();
+                }
+            }
+        }
+
+        function fazerLogout() {
+            if (supabase) supabase.auth.signOut();
+            localStorage.removeItem('bpl_user');
+            usuarioAtual = null;
+            atualizarInterfaceUsuario(null);
+            carregarTreinosSalvos();
+        }
+
+        function atualizarInterfaceUsuario(user) {
+            const userDisplay = document.getElementById('user-display');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnLoginModal = document.getElementById('btn-login-modal');
+
+            if (user) {
+                userDisplay.innerText = user.email;
+                userDisplay.classList.remove('hidden');
+                btnLogout.classList.remove('hidden');
+                btnLoginModal.classList.add('hidden');
+            } else {
+                userDisplay.classList.add('hidden');
+                btnLogout.classList.add('hidden');
+                btnLoginModal.classList.remove('hidden');
+            }
+        }
+
         function gerarTreinoPersonalizado() {
             if (!usuarioAtual) {
-                alert('Atenção: Você precisa estar logado e aprovado para poder gerar treinos!');
+                alert('Atenção: Você precisa estar logado para poder gerar treinos!');
                 abrirModalAuth();
                 return;
             }
@@ -263,7 +363,6 @@
             renderizarTreino(treinoAtualmenteGerado);
         }
 
-        // 5. Exibir o Treino com Exercício, Séries, Repetições, Carga e Observação
         function renderizarTreino(treino) {
             let html = `
                 <div id="ficha-impressao" class="space-y-6">
@@ -310,7 +409,6 @@
             document.getElementById('btn-pdf').classList.remove('hidden');
         }
 
-        // Exportação de PDF
         function exportarPDF() {
             const elemento = document.getElementById('ficha-impressao');
             if (!elemento) return;
@@ -326,7 +424,6 @@
             html2pdf().set(opt).from(elemento).save();
         }
 
-        // 4. Salvar Treino na lista do banco de dados
         async function salvarTreinoBD() {
             if (!usuarioAtual) {
                 alert('Faça login para salvar o treino!');
@@ -353,7 +450,6 @@
                     carregarTreinosSalvos();
                 }
             } else {
-                // Fallback Local Storage
                 const treinosLocais = JSON.parse(localStorage.getItem('bpl_treinos_salvos') || '[]');
                 treinosLocais.push({
                     id: Date.now(),
@@ -363,12 +459,11 @@
                     created_at: new Date().toISOString()
                 });
                 localStorage.setItem('bpl_treinos_salvos', JSON.stringify(treinosLocais));
-                alert('Treino salvo com sucesso (Local)!');
+                alert('Treino salvo com sucesso!');
                 carregarTreinosSalvos();
             }
         }
 
-        // 4. Carregar lista de Treinos Salvos
         async function carregarTreinosSalvos() {
             const container = document.getElementById('lista-treinos-salvos');
             if (!usuarioAtual) {
@@ -415,109 +510,6 @@
                 const treino = window._treinosCache[index].workout_data;
                 treinoAtualmenteGerado = treino;
                 renderizarTreino(treino);
-            }
-        }
-
-        // 2. MODAL DE AUTENTICAÇÃO COM SOLICITAÇÃO E APROVAÇÃO DE ADMIN
-        let modoCadastro = false;
-
-        function abrirModalAuth() {
-            document.getElementById('modal-auth').classList.remove('hidden');
-        }
-
-        function fecharModalAuth() {
-            document.getElementById('modal-auth').classList.add('hidden');
-        }
-
-        function alternarModoAuth() {
-            modoCadastro = !modoCadastro;
-            document.getElementById('modal-titulo').innerText = modoCadastro ? 'Solicitar Cadastro' : 'Entrar na Conta';
-            document.getElementById('btn-submeter-auth').innerText = modoCadastro ? 'Enviar Solicitação' : 'Acessar';
-            document.getElementById('auth-toggle-msg').innerText = modoCadastro ? 'Já tem uma conta?' : 'Não tem uma conta?';
-        }
-
-        async function submeterAuth() {
-            const email = document.getElementById('auth-email').value.trim();
-            const senha = document.getElementById('auth-senha').value.trim();
-
-            if (!email || !senha) {
-                alert('Preencha e-mail e senha!');
-                return;
-            }
-
-            if (supabase) {
-                if (modoCadastro) {
-                    // Solicitar cadastro
-                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
-                    if (error) {
-                        alert('Erro ao cadastrar: ' + error.message);
-                    } else {
-                        alert('Solicitação enviada com sucesso! Aguarde a aprovação do administrador para conseguir acessar.');
-                        fecharModalAuth();
-                    }
-                } else {
-                    // Tentar login
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-                    if (error) {
-                        alert('Erro ao logar: ' + error.message);
-                        return;
-                    }
-
-                    // Checar status de aprovação na tabela profiles
-                    const { data: profile, error: profileErr } = await supabase
-                        .from('profiles')
-                        .select('status')
-                        .eq('id', data.user.id)
-                        .single();
-
-                    if (profile && profile.status !== 'approved') {
-                        await supabase.auth.signOut();
-                        alert('Sua conta ainda está aguardando aprovação do administrador.');
-                        return;
-                    }
-
-                    usuarioAtual = data.user;
-                    atualizarInterfaceUsuario(usuarioAtual);
-                    fecharModalAuth();
-                    carregarTreinosSalvos();
-                }
-            } else {
-                // Fallback Sem Supabase Configurado
-                if (modoCadastro) {
-                    alert('Solicitação de cadastro registrada! Aguardando aprovação do administrador.');
-                    fecharModalAuth();
-                } else {
-                    usuarioAtual = { id: 'local_user', email };
-                    localStorage.setItem('bpl_user', JSON.stringify(usuarioAtual));
-                    atualizarInterfaceUsuario(usuarioAtual);
-                    fecharModalAuth();
-                    carregarTreinosSalvos();
-                }
-            }
-        }
-
-        function fazerLogout() {
-            if (supabase) supabase.auth.signOut();
-            localStorage.removeItem('bpl_user');
-            usuarioAtual = null;
-            atualizarInterfaceUsuario(null);
-            carregarTreinosSalvos();
-        }
-
-        function atualizarInterfaceUsuario(user) {
-            const userDisplay = document.getElementById('user-display');
-            const btnLogout = document.getElementById('btn-logout');
-            const btnLoginModal = document.getElementById('btn-login-modal');
-
-            if (user) {
-                userDisplay.innerText = user.email;
-                userDisplay.classList.remove('hidden');
-                btnLogout.classList.remove('hidden');
-                btnLoginModal.classList.add('hidden');
-            } else {
-                userDisplay.classList.add('hidden');
-                btnLogout.classList.add('hidden');
-                btnLoginModal.classList.remove('hidden');
             }
         }
 
