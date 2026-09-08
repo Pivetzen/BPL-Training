@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BPL Training - Gerador de Treinos</title>
+  <title>BPL Training - Gerador & Customizador de Treinos</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client -->
@@ -72,14 +72,14 @@
         </div>
 
         <button type="submit" id="btn-generate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition duration-150 flex justify-center items-center gap-2">
-          🔥 Gerar Treino Personalizado
+          🔥 Gerar Treino Base
         </button>
       </form>
     </section>
 
-    <!-- Exibição do Treino Gerado -->
+    <!-- Exibição e Edição do Treino Gerado -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 md:col-span-2">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
           <span>📋</span> Sua Ficha de Treino
         </h2>
@@ -140,11 +140,52 @@
     </div>
   </div>
 
+  <!-- Modal de Adicionar Exercício Manual -->
+  <div id="add-exercise-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center hidden z-50">
+    <div class="bg-white p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
+      <div class="flex justify-between items-center mb-4 border-b pb-2">
+        <h3 class="text-lg font-bold text-gray-800">Adicionar Novo Exercício</h3>
+        <button onclick="toggleAddExerciseModal()" class="text-gray-400 hover:text-gray-600 font-bold">&times;</button>
+      </div>
+      <form onsubmit="confirmAddExercise(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome do Exercício</label>
+          <input type="text" id="custom-ex-name" required placeholder="Ex: Agachamento Buldózer" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Séries/Reps</label>
+            <input type="text" id="custom-ex-sets" value="4x10-12" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Descanso</label>
+            <input type="text" id="custom-ex-rest" value="60s" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Técnica Avançada</label>
+          <select id="custom-ex-technique" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="Normal">Normal</option>
+            <option value="Drop-set">Drop-set (Até a falha + -20% carga)</option>
+            <option value="Rest-pause">Rest-pause (Pausas de 10-15s)</option>
+            <option value="Bi-set">Bi-set (Combinado)</option>
+            <option value="Pico de Contração">Pico de Contração (2s no ápice)</option>
+            <option value="GVT (10x10)">GVT (10 séries de 10 reps)</option>
+            <option value="Cluster Set">Cluster Set (Pausas intra-série)</option>
+          </select>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="toggleAddExerciseModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Script Principal -->
   <script>
     // ----------------------------------------------------
     // 1. CONFIGURAÇÃO DO SUPABASE
-    // (Substitua pelas suas chaves obtidas no dashboard)
     // ----------------------------------------------------
     const SUPABASE_URL = 'https://mpiakedodhupqbcmjeaf.supabase.co/rest/v1/';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1waWFrZWRvZGh1cHFiY21qZWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4Nzc5MDIsImV4cCI6MjEwNDQ1MzkwMn0.ChUgFJSs0ZzLBsnKgYTfqKV9QnS0c_hGqw7-R_NHbsc';
@@ -157,8 +198,9 @@
     let authAction = 'login';
     let currentUser = null;
     let currentGeneratedWorkout = null;
+    let activeSectionIndexToAdd = null;
 
-    // Base local de fallback caso o Supabase não esteja conectado
+    // Base local de fallback
     const fallbackDB = {
       peito: ['Supino Reto com Barra', 'Supino Inclinado com Halteres', 'Crossover na Polia', 'Flexão de Braços'],
       costas: ['Puxada Alta Frontal', 'Remada Curvada com Barra', 'Remada Baixa Triângulo', 'Pulldown na Polia'],
@@ -168,7 +210,6 @@
       triceps: ['Tríceps Pulley com Corda', 'Tríceps Testa', 'Mergulho no Banco']
     };
 
-    // Auto-check da sessão ao carregar a página
     window.addEventListener('DOMContentLoaded', async () => {
       if (supabase) {
         const { data: { session } } = await supabase.auth.getSession();
@@ -217,7 +258,6 @@
         ];
       }
 
-      // Buscar exercícios da tabela 'exercises' no Supabase
       let dbExercises = null;
       if (supabase) {
         const { data, error } = await supabase.from('exercises').select('*');
@@ -238,7 +278,12 @@
           }
           const selected = available.slice(0, level === 'iniciante' ? 2 : 3);
           selected.forEach(exName => {
-            sectionExercises.push({ name: exName, sets, rest });
+            sectionExercises.push({
+              name: exName,
+              sets,
+              rest,
+              technique: 'Normal'
+            });
           });
         });
         return { name: section.name, items: sectionExercises };
@@ -255,10 +300,11 @@
 
       renderWorkout(currentGeneratedWorkout);
 
-      btnGenerate.innerHTML = '🔥 Gerar Treino Personalizado';
+      btnGenerate.innerHTML = '🔥 Gerar Treino Base';
       btnGenerate.disabled = false;
     }
 
+    // Renderiza e permite edição ao vivo
     function renderWorkout(workout) {
       const container = document.getElementById('workout-printable');
       let html = `
@@ -275,29 +321,63 @@
         </div>
       `;
 
-      workout.sections.forEach(section => {
+      workout.sections.forEach((section, sIdx) => {
         html += `
-          <div class="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
-            <h4 class="text-md font-bold text-indigo-700 mb-3 border-b border-indigo-200 pb-1 uppercase">${section.name}</h4>
+          <div class="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50 relative">
+            <div class="flex justify-between items-center mb-3 border-b border-indigo-200 pb-2">
+              <h4 class="text-md font-bold text-indigo-700 uppercase">${section.name}</h4>
+              <button onclick="openAddExerciseModal(${sIdx})" class="no-print bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 border border-indigo-200">
+                ➕ Add Exercício
+              </button>
+            </div>
             <table class="w-full text-left text-sm">
               <thead>
                 <tr class="text-gray-400 border-b text-xs uppercase">
                   <th class="py-2">Exercício</th>
                   <th class="py-2">Séries/Reps</th>
                   <th class="py-2">Descanso</th>
-                  <th class="py-2 w-24">Carga (kg)</th>
+                  <th class="py-2">Técnica</th>
+                  <th class="py-2 w-20">Carga</th>
+                  <th class="py-2 w-10 text-right no-print">Ação</th>
                 </tr>
               </thead>
               <tbody>
         `;
 
-        section.items.forEach(item => {
+        section.items.forEach((item, iIdx) => {
+          const techBadge = item.technique && item.technique !== 'Normal' 
+            ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300 uppercase">${item.technique}</span>`
+            : `<span class="text-gray-400 text-xs">-</span>`;
+
           html += `
-            <tr class="border-b last:border-0 hover:bg-white">
-              <td class="py-2.5 font-semibold text-gray-800">${item.name}</td>
-              <td class="py-2.5 text-gray-600">${item.sets}</td>
-              <td class="py-2.5 text-gray-600">${item.rest}</td>
-              <td class="py-2.5"><span class="inline-block w-16 border-b border-dashed border-gray-400"></span></td>
+            <tr class="border-b last:border-0 hover:bg-white group">
+              <td class="py-2 font-semibold text-gray-800">${item.name}</td>
+              <td class="py-2 text-gray-600">
+                <input type="text" value="${item.sets}" onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'sets', this.value)" class="w-20 border border-transparent hover:border-gray-300 focus:border-indigo-500 rounded px-1 text-sm bg-transparent">
+              </td>
+              <td class="py-2 text-gray-600">
+                <input type="text" value="${item.rest}" onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'rest', this.value)" class="w-16 border border-transparent hover:border-gray-300 focus:border-indigo-500 rounded px-1 text-sm bg-transparent">
+              </td>
+              <td class="py-2">
+                <div class="no-print">
+                  <select onchange="updateExerciseParam(${sIdx}, ${iIdx}, 'technique', this.value)" class="text-xs border border-gray-200 rounded p-1 bg-white">
+                    <option value="Normal" ${item.technique === 'Normal' ? 'selected' : ''}>Normal</option>
+                    <option value="Drop-set" ${item.technique === 'Drop-set' ? 'selected' : ''}>Drop-set</option>
+                    <option value="Rest-pause" ${item.technique === 'Rest-pause' ? 'selected' : ''}>Rest-pause</option>
+                    <option value="Bi-set" ${item.technique === 'Bi-set' ? 'selected' : ''}>Bi-set</option>
+                    <option value="Pico de Contração" ${item.technique === 'Pico de Contração' ? 'selected' : ''}>Pico Contração</option>
+                    <option value="GVT (10x10)" ${item.technique === 'GVT (10x10)' ? 'selected' : ''}>GVT (10x10)</option>
+                    <option value="Cluster Set" ${item.technique === 'Cluster Set' ? 'selected' : ''}>Cluster Set</option>
+                  </select>
+                </div>
+                <div class="only-print">
+                  ${techBadge}
+                </div>
+              </td>
+              <td class="py-2"><span class="inline-block w-14 border-b border-dashed border-gray-400"></span></td>
+              <td class="py-2 text-right no-print">
+                <button onclick="removeExercise(${sIdx}, ${iIdx})" class="text-red-400 hover:text-red-600 font-bold px-1 text-base" title="Remover exercício">&times;</button>
+              </td>
             </tr>
           `;
         });
@@ -314,6 +394,53 @@
       if (currentUser) {
         document.getElementById('btn-save').classList.remove('hidden');
       }
+    }
+
+    // ----------------------------------------------------
+    // FUNÇÕES DE EDIÇÃO MANUAL DE EXERCÍCIOS
+    // ----------------------------------------------------
+    function updateExerciseParam(sIdx, iIdx, field, value) {
+      if (currentGeneratedWorkout) {
+        currentGeneratedWorkout.sections[sIdx].items[iIdx][field] = value;
+        // Não precisamos re-renderizar a página inteira para não perder o foco do input
+      }
+    }
+
+    function removeExercise(sIdx, iIdx) {
+      if (currentGeneratedWorkout) {
+        currentGeneratedWorkout.sections[sIdx].items.splice(iIdx, 1);
+        renderWorkout(currentGeneratedWorkout);
+      }
+    }
+
+    function openAddExerciseModal(sIdx) {
+      activeSectionIndexToAdd = sIdx;
+      document.getElementById('custom-ex-name').value = '';
+      toggleAddExerciseModal();
+    }
+
+    function toggleAddExerciseModal() {
+      document.getElementById('add-exercise-modal').classList.toggle('hidden');
+    }
+
+    function confirmAddExercise(e) {
+      e.preventDefault();
+      if (activeSectionIndexToAdd === null || !currentGeneratedWorkout) return;
+
+      const name = document.getElementById('custom-ex-name').value;
+      const sets = document.getElementById('custom-ex-sets').value;
+      const rest = document.getElementById('custom-ex-rest').value;
+      const technique = document.getElementById('custom-ex-technique').value;
+
+      currentGeneratedWorkout.sections[activeSectionIndexToAdd].items.push({
+        name,
+        sets,
+        rest,
+        technique
+      });
+
+      renderWorkout(currentGeneratedWorkout);
+      toggleAddExerciseModal();
     }
 
     // ----------------------------------------------------
@@ -388,6 +515,9 @@
     // 4. EXPORTAÇÃO PARA PDF
     // ----------------------------------------------------
     function exportToPDF() {
+      // Ocultar elementos marcados com 'no-print' durante a geração do PDF
+      document.body.classList.add('exporting-pdf');
+
       const element = document.getElementById('workout-printable');
       const opt = {
         margin:       10,
@@ -397,7 +527,9 @@
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save();
+      html2pdf().set(opt).from(element).save().then(() => {
+        document.body.classList.remove('exporting-pdf');
+      });
     }
 
     // ----------------------------------------------------
@@ -459,5 +591,18 @@
       updateUIOnAuth();
     }
   </script>
+
+  <style>
+    /* Suporte para ocultar botões e trocar visibilidade ao exportar PDF */
+    .exporting-pdf .no-print {
+      display: none !important;
+    }
+    .only-print {
+      display: none;
+    }
+    .exporting-pdf .only-print {
+      display: block !important;
+    }
+  </style>
 </body>
 </html>
