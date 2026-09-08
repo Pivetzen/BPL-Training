@@ -305,7 +305,48 @@
                 await checarSessao();
             }
         }
-
+        async function verificarStatusEAutenticar(user) {
+            if (!user) return;
+        
+            // Busca o perfil do usuário logado na tabela profiles
+            const { data: profile, error } = await supabaseClient
+                .from('profiles')
+                .select('status, role')
+                .eq('id', user.id)
+                .single();
+        
+            if (error || !profile) {
+                alert('Erro ao carregar perfil do usuário.');
+                await supabaseClient.auth.signOut();
+                return;
+            }
+        
+            // Se for admin, libera o acesso direto
+            if (profile.role === 'admin') {
+                currentUser = user;
+                currentProfile = profile;
+                liberarPainelApp();
+                return;
+            }
+        
+            // Se o status NÃO for aprovado, bloqueia o acesso
+            if (profile.status !== 'approved') {
+                let mensagem = 'Seu cadastro está aguardando aprovação do administrador.';
+                if (profile.status === 'rejected') {
+                    mensagem = 'Seu acesso foi rejeitado ou bloqueado pelo administrador.';
+                }
+                
+                alert(mensagem);
+                await supabaseClient.auth.signOut(); // Desloga o usuário imediatamente
+                bloquearPainelApp(); // Oculta as funcionalidades e mostra tela de login/cadastro
+                return;
+            }
+        
+            // Usuário aprovado e comum
+            currentUser = user;
+            currentProfile = profile;
+            liberarPainelApp();
+        }
         async function fazerCadastro() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
